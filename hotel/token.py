@@ -102,11 +102,16 @@ def login_required(func):
         # 验证 token 是否有效
         token = get_token()
         g.session = Redis.hgetall(token)
-        g.session["purview"] = loads(g.session["purview"])
+        purview_required = loads(g.session["purview"])
 
         purview = request.path.split("/")
         del purview[0]
-        print(purview)
+
+        for item in purview:
+            purview_required = purview_required[item]
+
+        if not purview_required:
+            return response_json({}, err=1, msg="没有权限")
 
         if g.session is None:
             return response_json({}, err=403, msg="请重新登录")
