@@ -48,7 +48,7 @@ def refresh_token() -> response_json:
     """
 
     try:  # 验证 token 是否通过
-        data = validate_token(get_token(), "REFRESH_TOKEN")
+        data = validate_token(get_token())
     except DiyError as err:
         return response_json({}, err=err.code, msg=err.message)
 

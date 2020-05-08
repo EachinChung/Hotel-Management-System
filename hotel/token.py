@@ -1,10 +1,12 @@
+from functools import wraps
+from json import loads
 from os import getenv
 from time import time
 
-from flask import request
+from flask import g, request
 from itsdangerous import BadSignature, TimedJSONWebSignatureSerializer
 
-from hotel.common import safe_md5
+from hotel.common import response_json, safe_md5
 from hotel.diy_error import DiyError
 from hotel.my_redis import Redis
 
@@ -82,3 +84,33 @@ def validate_token(token: str, token_type: str = "REFRESH_TOKEN") -> dict:
         raise DiyError("请重新登录", code=403)
     else:
         return data
+
+
+def login_required(func):
+    """
+    检查用户的access_token是否合法
+    因为有账号才能拿到token，故不考虑，账号不存在的情况
+
+    使用flask的g对象，全局储存 user 数据
+
+    :param func: 使用此装饰器的函数
+    :return: 指向新函数，或者返回错误
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kw):
+        # 验证 token 是否有效
+        token = get_token()
+        g.session = Redis.hgetall(token)
+        g.session["purview"] = loads(g.session["purview"])
+
+        purview = request.path.split("/")
+        del purview[0]
+        print(purview)
+
+        if g.session is None:
+            return response_json({}, err=403, msg="请重新登录")
+
+        return func(*args, **kw)
+
+    return wrapper
