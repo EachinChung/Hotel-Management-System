@@ -112,6 +112,34 @@ def login_required(func):
     return wrapper
 
 
+def login_sudo_required(func):
+    """
+    检查用户的access_token是否合法
+    因为有账号才能拿到token，故不考虑，账号不存在的情况
+
+    使用flask的g对象，全局储存 user 数据
+
+    :param func: 使用此装饰器的函数
+    :return: 指向新函数，或者返回错误
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kw):
+        # 验证 token 是否有效
+        token = get_token()
+        g.session = Redis.hgetall(token)
+
+        if g.session is None:
+            return response_json(err=403, msg="请重新登录")
+
+        if int(g.session["weight"]) != 0:
+            return response_json(err=1, msg="该用户组没有权限")
+
+        return func(*args, **kw)
+
+    return wrapper
+
+
 def login_purview_required(func):
     """
     需要权限
@@ -124,6 +152,9 @@ def login_purview_required(func):
         # 验证 token 是否有效
         token = get_token()
         g.session = Redis.hgetall(token)
+
+        if g.session is None:
+            return response_json(err=403, msg="请重新登录")
 
         purview_required = Redis.get(f"{g.session['phone']}-purview")
 
@@ -142,9 +173,6 @@ def login_purview_required(func):
 
         if not purview_required:
             return response_json(err=1, msg="该用户组没有权限")
-
-        if g.session is None:
-            return response_json(err=403, msg="请重新登录")
 
         return func(*args, **kw)
 

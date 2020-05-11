@@ -6,7 +6,7 @@ from hotel.common import response_json
 from hotel.diy_error import DiyError
 from hotel.extensions import db
 from hotel.models import User, UserGroup
-from hotel.token import login_purview_required
+from hotel.token import login_sudo_required
 
 user_bp = Blueprint("user", __name__)
 
@@ -32,7 +32,7 @@ def _get_user_data() -> tuple:
 
 
 @user_bp.route("/add", methods=["POST"])
-@login_purview_required
+@login_sudo_required
 def add_user() -> response_json:
     """
     添加用户
@@ -67,7 +67,7 @@ def add_user() -> response_json:
 
 
 @user_bp.route("/update", methods=["POST"])
-@login_purview_required
+@login_sudo_required
 def update_user() -> response_json:
     """
     修改用户
@@ -101,7 +101,7 @@ def update_user() -> response_json:
 
 
 @user_bp.route("/del", methods=["POST"])
-@login_purview_required
+@login_sudo_required
 def del_user() -> response_json:
     """
     删除用户
@@ -132,7 +132,7 @@ def del_user() -> response_json:
 
 
 @user_bp.route("/list", methods=["POST"])
-@login_purview_required
+@login_sudo_required
 def user_list() -> response_json:
     """
     用户列表
@@ -144,7 +144,7 @@ def user_list() -> response_json:
         per_page = data["per_page"]
         query = data["query"]
     except (KeyError, TypeError):
-        return response_json({}, err=1, msg="缺少参数")
+        return response_json(err=1, msg="缺少参数")
 
     def _decode(item):  # 把数据库模型解析为 json
         return dict(phone=item.phone, name=item.name, user_group=item.user_group.group_name)

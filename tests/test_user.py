@@ -2,8 +2,6 @@ from tests.base import BaseTestCase
 
 
 class UserTestCase(BaseTestCase):
-    def base_get(self, api, json):
-        return self.get(f"/user{api}", json)
 
     def base_post(self, api, json):
         return self.post(f"/user{api}", json)

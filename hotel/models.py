@@ -39,6 +39,8 @@ class RoomType(db.Model):
     number_of_beds = db.Column(db.Integer)
     number_of_people = db.Column(db.Integer)
     price_tag = db.Column(db.Float)
+    update_datetime = db.Column(db.DateTime)
+    operator = db.Column(db.String)
 
 
 class Room(db.Model):
@@ -50,4 +52,6 @@ class Room(db.Model):
     floor = db.Column(db.Integer)
     status = db.Column(db.Integer, default=0)
     is_discounted = db.Column(db.Boolean, default=False)
+    update_datetime = db.Column(db.DateTime)
+    operator = db.Column(db.String)
     room_type = db.relationship('RoomType')

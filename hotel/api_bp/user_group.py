@@ -14,17 +14,11 @@ def template() -> response_json:
     :return:
     """
     data = {
-        "user": {
-            "add": False,
-            "del": False,
-            "update": False,
-            "list": False,
-        },
-        "user-group": {
-            "purview": {
-                "template": False
-            },
-            "list": False,
+        "room-type": {
+            "add": True,
+            "del": True,
+            "update": True,
+            "list": True,
         }
     }
     return response_json(data)

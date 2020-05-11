@@ -25,16 +25,20 @@ create table room_type
     room_type        varchar(254) not null unique,
     number_of_beds   tinyint      not null,
     number_of_people tinyint      not null,
-    price_tag        float        not null
+    price_tag        float        not null,
+    update_datetime  datetime     not null,
+    operator         varchar(64)  not null
 );
 
 create table room
 (
-    id            int          not null primary key,
-    room_type_id  int unsigned not null,
-    floor         tinyint      not null,
-    status        tinyint      not null,
-    is_discounted tinyint      not null,
+    id              int          not null primary key,
+    room_type_id    int unsigned not null,
+    floor           tinyint      not null,
+    status          tinyint      not null,
+    is_discounted   tinyint      not null,
+    update_datetime datetime     not null,
+    operator        varchar(64)  not null,
     foreign key (room_type_id) references room_type (id) on delete cascade on update cascade
 );
 
@@ -47,8 +51,7 @@ create table booking_order
     phone          varchar(32) not null,
     booker         varchar(64) not null,
     remark         text        null,
-    operator_phone char(11)    not null,
-    foreign key (operator_phone) references user (phone) on delete cascade on update cascade
+    operator_phone char(11)    not null
 );
 
 create table group_order
@@ -60,8 +63,7 @@ create table group_order
     phone          varchar(32) not null,
     booker         varchar(64) not null,
     remark         text        null,
-    operator_phone char(11)    not null,
-    foreign key (operator_phone) references user (phone) on delete cascade on update cascade
+    operator_phone char(11)    not null
 );
 
 create table check_in_order
