@@ -104,7 +104,7 @@ def login_required(func):
         g.session = Redis.hgetall(token)
 
         if g.session is None:
-            return response_json({}, err=403, msg="请重新登录")
+            return response_json(err=403, msg="请重新登录")
 
         return func(*args, **kw)
 
@@ -132,10 +132,10 @@ def login_purview_required(func):
             purview_required = purview_required[item]
 
         if not purview_required:
-            return response_json({}, err=1, msg="该用户组没有权限")
+            return response_json(err=1, msg="该用户组没有权限")
 
         if g.session is None:
-            return response_json({}, err=403, msg="请重新登录")
+            return response_json(err=403, msg="请重新登录")
 
         return func(*args, **kw)
 

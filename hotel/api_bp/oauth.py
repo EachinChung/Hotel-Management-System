@@ -20,17 +20,17 @@ def login_bp() -> response_json:
         phone = data["phone"]
         password = data["password"]
     except (KeyError, TypeError):
-        return response_json({}, err=1, msg="缺少参数")
+        return response_json(err=1, msg="缺少参数")
 
     if not phone.isdigit():
-        return response_json({}, err=1, msg="提交信息不合法")
+        return response_json(err=1, msg="提交信息不合法")
 
     user = User.query.get(phone)
     if user is None:
-        return response_json({}, err=1, msg="该账号不存在")
+        return response_json(err=1, msg="该账号不存在")
 
     if not user.validate_password(password):
-        return response_json({}, err=1, msg="密码错误")
+        return response_json(err=1, msg="密码错误")
 
     response_data = {
         "name": user.name,
@@ -50,6 +50,6 @@ def refresh_token() -> response_json:
     try:  # 验证 token 是否通过
         data = validate_token(get_token())
     except DiyError as err:
-        return response_json({}, err=err.code, msg=err.message)
+        return response_json(err=err.code, msg=err.message)
 
     return response_json(create_token(User.query.get(data["phone"])))

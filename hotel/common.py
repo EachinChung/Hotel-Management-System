@@ -16,7 +16,7 @@ def safe_md5(s: str) -> str:
     return md5(s).hexdigest().upper()
 
 
-def response_json(data: dict, err: int = 0, msg: str = "ok") -> jsonify:
+def response_json(data: dict = None, err: int = 0, msg: str = "ok") -> jsonify:
     """
     统一响应json的格式
     :param data:
@@ -24,4 +24,5 @@ def response_json(data: dict, err: int = 0, msg: str = "ok") -> jsonify:
     :param msg:
     :return:
     """
+    if data is None: data = {}
     return jsonify(data=data, err=err, msg=msg)
