@@ -1,3 +1,5 @@
+from json import loads
+
 from flask import Blueprint, request
 
 from hotel.common import response_json
@@ -34,7 +36,9 @@ def login_bp() -> response_json:
 
     response_data = {
         "name": user.name,
-        "token": create_token(user)
+        "token": create_token(user),
+        "user_group": user.user_group.group_name,
+        "purview": loads(user.user_group.purview)
     }
 
     return response_json(response_data)
