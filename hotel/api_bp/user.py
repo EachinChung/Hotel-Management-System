@@ -1,4 +1,5 @@
 from flask import Blueprint, request, g
+from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 
 from hotel.common import response_json
@@ -63,6 +64,9 @@ def del_user() -> response_json:
     if not phone.isdigit():
         return response_json(err=1, msg="提交信息不合法")
 
+    if g.session["phone"] == phone:
+        return response_json(err=1, msg="不能删除当前账户")
+
     user = User.query.get(phone)
     if user is None:
         return response_json(err=1, msg="该账号不存在")
@@ -73,3 +77,36 @@ def del_user() -> response_json:
     db.session.delete(user)
     db.session.commit()
     return response_json(msg=f"{user.name} 删除成功")
+
+
+@user_bp.route("/list", methods=["POST"])
+@login_purview_required
+def user_list() -> response_json:
+    """
+    用户列表
+    :return:
+    """
+    try:
+        data = request.get_json()
+        page = data["page"]
+        per_page = data["per_page"]
+        query = data["query"]
+    except (KeyError, TypeError):
+        return response_json({}, err=1, msg="缺少参数")
+
+    def _decode(item):  # 把数据库模型解析为 json
+        return dict(phone=item.phone, name=item.name, user_group=item.user_group.group_name)
+
+    users = User.query.filter(or_(
+        User.name.like(f"%{query}%"),
+        User.phone.like(f"%{query}%")
+    )).paginate(page=page, per_page=per_page)
+    items = tuple(map(_decode, users.items))
+
+    return response_json(dict(
+        items=items,
+        page=users.page,
+        per_page=users.per_page,
+        pages=users.pages,
+        total=users.total
+    ))

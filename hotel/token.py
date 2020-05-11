@@ -8,6 +8,7 @@ from itsdangerous import BadSignature, TimedJSONWebSignatureSerializer
 
 from hotel.common import response_json, safe_md5
 from hotel.diy_error import DiyError
+from hotel.models import User
 from hotel.my_redis import Redis
 
 
@@ -124,7 +125,15 @@ def login_purview_required(func):
         token = get_token()
         g.session = Redis.hgetall(token)
 
-        purview_required = loads(Redis.get(f"{g.session['phone']}-purview"))
+        purview_required = Redis.get(f"{g.session['phone']}-purview")
+
+        if purview_required is None:
+            user = User.query.get(g.session["phone"])
+            Redis.set(f"{g.session['phone']}-purview", user.user_group.purview, expire=None)
+            purview_required = loads(user.user_group.purview)
+        else:
+            purview_required = loads(purview_required)
+
         purview = request.path.split("/")
         del purview[0]
 

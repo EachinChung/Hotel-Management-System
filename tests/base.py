@@ -1,18 +1,28 @@
-import os
 import unittest
+from os import environ
 
-import requests
 from dotenv import find_dotenv, load_dotenv
+from redis import StrictRedis
+from requests import session
 
 load_dotenv(find_dotenv())
 
 
 class BaseTestCase(unittest.TestCase):
     def setUp(self):
-        self.session = requests.session()
-        self.url = os.environ.get('API_URL')
+        self.session = session()
+        self.phone = "13711164450"
+        self.password = "qwerty"
+        self.url = environ.get('API_URL')
+        self.r = StrictRedis(host='localhost', port=6379, password=environ.get('REDIS_PASSWORD'), decode_responses=True)
 
-    def login(self, phone="13711164450", password="qwerty"):
+    def login(self, phone=None, password=None):
+
+        if phone is None:
+            phone = self.phone
+        if password is None:
+            password = self.password
+
         return self.session.post(
             url=f"{self.url}/oauth/login",
             json={

@@ -61,6 +61,10 @@ class UserTestCase(BaseTestCase):
         response = self.api_del_user(dict(phone="15811111YES"))
         self.assertIn('提交信息不合法', response['msg'])
 
+    def test_del_user_err_oneself(self):
+        response = self.api_del_user(dict(phone=self.phone))
+        self.assertIn("不能删除当前账户", response["msg"])
+
     def test_del_user_err_weight(self):
         response = self.api_del_user(dict(phone="15811111111"))
         self.assertIn("只能删除比自己权重低的账户", response["msg"])
