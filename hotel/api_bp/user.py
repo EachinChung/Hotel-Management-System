@@ -1,16 +1,16 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, g
 from sqlalchemy.exc import IntegrityError
 
 from hotel.common import response_json
 from hotel.extensions import db
-from hotel.models import User
-from hotel.token import login_required
+from hotel.models import User, UserGroup
+from hotel.token import login_purview_required
 
 user_bp = Blueprint("user", __name__)
 
 
 @user_bp.route("/add", methods=["POST"])
-@login_required
+@login_purview_required
 def add_user() -> response_json:
     """
     添加用户
@@ -27,6 +27,13 @@ def add_user() -> response_json:
     # 如果电话或权限不是数字，则是非法提交
     if not phone.isdigit() or type(user_group_id) is not int:
         return response_json({}, err=1, msg="提交信息不合法")
+
+    user_group = UserGroup.query.get(user_group_id)
+    if user_group is None:
+        return response_json({}, err=1, msg="该用户组不存在")
+
+    if int(g.session["weight"]) >= user_group.weight:
+        return response_json({}, err=1, msg="只能创建比自己权重低的账户")
 
     user = User(phone=phone, name=name, user_group_id=user_group_id)
     user.set_password(phone)

@@ -38,11 +38,11 @@ def _access_token(user) -> str:
     data = {
         "name": user.name,
         "phone": user.phone,
-        "weight": user.user_group.weight,
-        "purview": user.user_group.purview
+        "weight": user.user_group.weight
     }
 
     Redis.hmset(sign, data)
+    Redis.set(f"{user.phone}-purview", user.user_group.purview, expire=None)
     Redis.expire(sign, 3600)
     return sign
 
@@ -102,8 +102,29 @@ def login_required(func):
         # 验证 token 是否有效
         token = get_token()
         g.session = Redis.hgetall(token)
-        purview_required = loads(g.session["purview"])
 
+        if g.session is None:
+            return response_json({}, err=403, msg="请重新登录")
+
+        return func(*args, **kw)
+
+    return wrapper
+
+
+def login_purview_required(func):
+    """
+    需要权限
+    :param func: 使用此装饰器的函数
+    :return: 指向新函数，或者返回错误
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kw):
+        # 验证 token 是否有效
+        token = get_token()
+        g.session = Redis.hgetall(token)
+
+        purview_required = loads(Redis.get(f"{g.session['phone']}-purview"))
         purview = request.path.split("/")
         del purview[0]
 
@@ -111,7 +132,7 @@ def login_required(func):
             purview_required = purview_required[item]
 
         if not purview_required:
-            return response_json({}, err=1, msg="没有权限")
+            return response_json({}, err=1, msg="该用户组没有权限")
 
         if g.session is None:
             return response_json({}, err=403, msg="请重新登录")

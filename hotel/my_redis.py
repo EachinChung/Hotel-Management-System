@@ -13,7 +13,7 @@ class Redis:
         return StrictRedis(connection_pool=pool)
 
     @classmethod
-    def set(cls, key: str, value: str, expire: int = 300) -> None:
+    def set(cls, key: str, value: str, expire=300) -> None:
         """
         写入键值对
         :param key:
