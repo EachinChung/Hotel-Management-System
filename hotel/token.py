@@ -1,14 +1,12 @@
 from functools import wraps
-from json import loads
 from os import getenv
 from time import time
 
 from flask import g, request
 from itsdangerous import BadSignature, TimedJSONWebSignatureSerializer
 
-from hotel.common import response_json, safe_md5
+from hotel.common import get_user_purview, response_json, safe_md5
 from hotel.diy_error import DiyError
-from hotel.models import User
 from hotel.my_redis import Redis
 
 
@@ -104,7 +102,7 @@ def login_required(func):
         token = get_token()
         g.session = Redis.hgetall(token)
 
-        if g.session is None:
+        if not g.session:
             return response_json(err=403, msg="请重新登录")
 
         return func(*args, **kw)
@@ -129,7 +127,7 @@ def login_sudo_required(func):
         token = get_token()
         g.session = Redis.hgetall(token)
 
-        if g.session is None:
+        if not g.session:
             return response_json(err=403, msg="请重新登录")
 
         if int(g.session["weight"]) != 0:
@@ -153,18 +151,10 @@ def login_purview_required(func):
         token = get_token()
         g.session = Redis.hgetall(token)
 
-        if g.session is None:
+        if not g.session:
             return response_json(err=403, msg="请重新登录")
 
-        purview_required = Redis.get(f"{g.session['phone']}-purview")
-
-        if purview_required is None:
-            user = User.query.get(g.session["phone"])
-            Redis.set(f"{g.session['phone']}-purview", user.user_group.purview, expire=None)
-            purview_required = loads(user.user_group.purview)
-        else:
-            purview_required = loads(purview_required)
-
+        purview_required = get_user_purview()
         purview = request.path.split("/")
         del purview[0]
 

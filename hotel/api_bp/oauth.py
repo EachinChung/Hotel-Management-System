@@ -1,5 +1,3 @@
-from json import loads
-
 from flask import Blueprint, request
 
 from hotel.common import response_json

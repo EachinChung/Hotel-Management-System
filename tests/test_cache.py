@@ -2,6 +2,16 @@ from tests.base import BaseTestCase
 
 
 class CacheTestCase(BaseTestCase):
+    def test_token_expired(self):
+        """
+        过期token
+        :return:
+        """
+        response = self.session.post(f"{self.url}/user/list", json=dict(page=1, per_page=1, query=""), headers={
+            "Authorization": f"bearer test"
+        }).json()
+        self.assertEqual(403, response["err"])
+
     def test_purview(self):
         """
         测试权限的缓存
