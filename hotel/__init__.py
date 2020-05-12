@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 
 from hotel.api_bp.oauth import oauth_bp
+from hotel.api_bp.room import room_bp
 from hotel.api_bp.room_type import room_type_bp
 from hotel.api_bp.user import user_bp
 from hotel.extensions import db
@@ -32,6 +33,7 @@ def register_blueprints(app) -> None:
     :return:
     """
     app.register_blueprint(oauth_bp, url_prefix="/oauth")
+    app.register_blueprint(room_bp, url_prefix="/room")
     app.register_blueprint(room_type_bp, url_prefix="/room-type")
     app.register_blueprint(user_bp, url_prefix="/user")
 
