@@ -37,8 +37,7 @@ def login_bp() -> response_json:
     response_data = {
         "name": user.name,
         "token": create_token(user),
-        "user_group": user.user_group.group_name,
-        "purview": loads(user.user_group.purview)
+        "user_group": user.user_group.group_name
     }
 
     return response_json(response_data)

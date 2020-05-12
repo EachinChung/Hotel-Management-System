@@ -1,36 +1,29 @@
-from flask import Blueprint
+from json import loads
+
+from flask import Blueprint, g
 
 from hotel.common import response_json
-from hotel.token import login_purview_required
+from hotel.models import User
+from hotel.my_redis import Redis
+from hotel.token import login_required
 
 user_group_bp = Blueprint("user-group", __name__)
 
 
-@user_group_bp.route("/purview/template")
-@login_purview_required
-def template() -> response_json:
+@user_group_bp.route("/purview")
+@login_required  # 所有用户都要获取权限，所以仅需鉴权是否登录
+def get_purview() -> response_json:
     """
-    权限模板
+    获取权限
     :return:
     """
-    data = {
-        "user": {
-            "add": True,
-            "del": True,
-            "update": True,
-            "list": True,
-        },
-        "room-type": {
-            "add": True,
-            "del": True,
-            "update": True,
-            "list": True,
-        },
-        "room": {
-            "add": True,
-            "del": True,
-            "update": True,
-            "list": True,
-        },
-    }
-    return response_json(data)
+    purview = Redis.get(f"{g.session['phone']}-purview")
+
+    if purview is None:
+        user = User.query.get(g.session["phone"])
+        Redis.set(f"{g.session['phone']}-purview", user.user_group.purview, expire=None)
+        purview = loads(user.user_group.purview)
+    else:
+        purview = loads(purview)
+
+    return response_json(purview)
