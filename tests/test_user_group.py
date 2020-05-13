@@ -11,6 +11,13 @@ class UserGroupTestCase(BaseTestCase):
     def api_purview(self):
         return self.base_get("/purview")
 
+    def api_group_id_list(self):
+        return self.base_get("/id-list")
+
     def test_purview(self):
         response = self.api_purview()
+        self.assertIn("ok", response["msg"])
+
+    def test_group_id_list(self):
+        response = self.api_group_id_list()
         self.assertIn("ok", response["msg"])
