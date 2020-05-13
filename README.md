@@ -7,7 +7,7 @@
 # 例如: mysql+mysqlconnector://root:123456@localhost:3306/nfu
 DATABASE_URL=xxxxxxx
 
-# 各种jwt的签名(随机的字符串即可)
+# 各种token的密钥(随机的字符串即可)
 ACCESS_TOKEN=xxxxxxx
 REFRESH_TOKEN=xxxxxxx
 
@@ -31,4 +31,10 @@ FRONT_END_URL=http://127.0.0.1:8080
 ```
 ➜ cd hotel
 ➜ flask run
+```
+
+### 运行测试用例
+
+```
+➜ python -m unittest -v
 ```

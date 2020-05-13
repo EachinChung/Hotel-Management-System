@@ -93,16 +93,6 @@ class Redis:
         return r.hgetall(name)
 
     @classmethod
-    def delete(cls, *names: str) -> None:
-        """
-        删除一个或者多个
-        :param names:
-        :return:
-        """
-        r = cls._get_r()
-        r.delete(*names)
-
-    @classmethod
     def hdel(cls, name: str, key: str) -> None:
         """
         删除指定hash表的键值
@@ -123,3 +113,24 @@ class Redis:
         """
         r = cls._get_r()
         r.expire(name, expire)
+
+    @classmethod
+    def delete(cls, *names: str) -> None:
+        """
+        删除一个或者多个
+        :param names:
+        :return:
+        """
+        r = cls._get_r()
+        r.delete(*names)
+
+    @classmethod
+    def fuzzy_delete(cls, pattern: str) -> None:
+        """
+        模糊删除
+        :param pattern:
+        :return:
+        """
+        r = cls._get_r()
+        keys = r.keys(pattern=f"*{pattern}*")
+        if keys: r.delete(*keys)

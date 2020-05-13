@@ -24,7 +24,6 @@ class UserTestCase(BaseTestCase):
             "name": "测试用户",
             "user_group_id": 2
         })
-
         self.assertIn("测试用户", response["msg"])
 
     def test_add_user_err_illegal_phone(self):

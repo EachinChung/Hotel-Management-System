@@ -63,8 +63,8 @@ def update_room():
     if room is None:
         return response_json(err=1, msg="该房间不存在")
 
-    room.room_type_id = room_type_id
     room.floor = floor
+    room.room_type_id = room_type_id
     room.is_discounted = is_discounted
     room.update_datetime = datetime.today()
     room.operator = g.session["name"]

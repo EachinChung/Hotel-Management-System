@@ -70,3 +70,71 @@ create table check_in_order
 (
     id char(22) not null primary key
 );
+
+# 以下为测试运行时，所必须的数据
+INSERT INTO hotel.user (phone, name, password_hash, user_group_id)
+VALUES ('13711164450', '钟予乾',
+        'pbkdf2:sha256:150000$xhALF1oo$554e1560e9c109fb79641ec5bc620caf86bf58682f638196b3d53d53173881ba', 1);
+
+INSERT INTO hotel.room_type (id, room_type, number_of_beds, number_of_people, price_tag, update_datetime, operator)
+VALUES (1, '标准大床房', 1, 2, 300, '2020-05-12 00:46:05', '钟予乾');
+INSERT INTO hotel.room_type (id, room_type, number_of_beds, number_of_people, price_tag, update_datetime, operator)
+VALUES (2, '海景大床房', 1, 2, 300, '2020-05-13 16:11:52', '钟予乾');
+
+INSERT INTO hotel.user_group (id, group_name, weight, purview)
+VALUES (1, '最高管理员', 0, '{
+  "room": {
+    "add": true,
+    "del": true,
+    "list": true,
+    "update": true
+  },
+  "user": {
+    "add": true,
+    "del": true,
+    "list": true,
+    "update": true
+  },
+  "room-type": {
+    "add": true,
+    "del": true,
+    "list": true,
+    "update": true
+  }
+}');
+INSERT INTO hotel.user_group (id, group_name, weight, purview)
+VALUES (2, '测试', 1, '{
+  "user": {
+    "add": false,
+    "del": false,
+    "list": false,
+    "update": false
+  },
+  "user-group": {
+    "list": false,
+    "purview": {
+      "template": false
+    }
+  }
+}');
+INSERT INTO hotel.user_group (id, group_name, weight, purview)
+VALUES (3, '测试缓存', 2, '{
+  "room": {
+    "add": true,
+    "del": true,
+    "list": true,
+    "update": true
+  },
+  "user": {
+    "add": true,
+    "del": true,
+    "list": true,
+    "update": true
+  },
+  "room-type": {
+    "add": true,
+    "del": true,
+    "list": true,
+    "update": true
+  }
+}');

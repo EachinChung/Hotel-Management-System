@@ -53,4 +53,7 @@ def refresh_token() -> response_json:
     except DiyError as err:
         return response_json(err=err.code, msg=err.message)
 
-    return response_json(create_token(User.query.get(data["phone"])))
+    user = User.query.get(data["phone"])
+    if user is None: return response_json(err=403, msg="该账号已被注销")
+
+    return response_json(create_token(user))

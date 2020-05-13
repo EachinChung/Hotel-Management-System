@@ -6,6 +6,7 @@ from hotel.common import response_json
 from hotel.diy_error import DiyError
 from hotel.extensions import db
 from hotel.models import User, UserGroup
+from hotel.my_redis import Redis
 from hotel.token import login_purview_required
 
 user_bp = Blueprint("user", __name__)
@@ -94,8 +95,12 @@ def update_user() -> response_json:
 
     user.name = name
     user.user_group_id = user_group_id
+
+    # 两次刷新缓存，防止数据污染
+    Redis.fuzzy_delete(phone)
     db.session.add(user)
     db.session.commit()
+    Redis.fuzzy_delete(phone)
 
     return response_json(msg=f"{name} 修改成功")
 
@@ -126,8 +131,12 @@ def del_user() -> response_json:
     if int(g.session["weight"]) >= user.user_group.weight:
         return response_json(err=1, msg="只能删除比自己权重低的账户")
 
+    # 两次刷新缓存，防止数据污染
+    Redis.fuzzy_delete(phone)
     db.session.delete(user)
     db.session.commit()
+    Redis.fuzzy_delete(phone)
+
     return response_json(msg=f"{user.name} 删除成功")
 
 
@@ -147,7 +156,12 @@ def user_list() -> response_json:
         return response_json(err=1, msg="缺少参数")
 
     def _decode(item):  # 把数据库模型解析为 json
-        return dict(phone=item.phone, name=item.name, user_group=item.user_group.group_name)
+        return dict(
+            phone=item.phone,
+            name=item.name,
+            user_group_id=item.user_group_id,
+            user_group=item.user_group.group_name
+        )
 
     users = User.query.filter(or_(
         User.name.like(f"%{query}%"),
