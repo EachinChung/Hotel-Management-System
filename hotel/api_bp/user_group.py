@@ -1,11 +1,10 @@
-from json import dumps, loads
-
 from flask import Blueprint, g, request
 from sqlalchemy.exc import IntegrityError
 
-from hotel.common import get_user_purview, response_json
+from hotel.common import response_json
 from hotel.extensions import db
 from hotel.models import UserGroup
+from hotel.purview import get_user_purview_from_cache, get_user_purview_from_mysql
 from hotel.token import login_required, login_sudo_required
 
 user_group_bp = Blueprint("user-group", __name__)
@@ -18,7 +17,7 @@ def purview_bp() -> response_json:
     获取权限
     :return:
     """
-    purview = get_user_purview()
+    purview = get_user_purview_from_cache()
     return response_json(dict(purview=purview, weight=int(g.session["weight"])))
 
 
@@ -29,8 +28,12 @@ def user_group_id_list() -> response_json:
     获取用户组id
     :return:
     """
-    group_list = UserGroup.query.all()
-    items = tuple(map(lambda item: dict(id=item.id, group_name=item.group_name), group_list))
+    group_list = UserGroup.query.order_by(UserGroup.weight).all()
+    items = tuple(map(lambda item: dict(
+        id=item.id,
+        weight=item.weight,
+        group_name=item.group_name
+    ), group_list))
     return response_json(dict(items=items))
 
 
@@ -56,7 +59,7 @@ def user_group_list() -> response_json:
             group_name=item.group_name,
             description=item.description,
             weight=item.weight,
-            purview=loads(item.purview)
+            purview=get_user_purview_from_mysql(item.id)
         )
 
     group_list = UserGroup.query.filter(UserGroup.group_name.like(
@@ -84,15 +87,11 @@ def add_user_group() -> response_json:
         group_name = data["group_name"]
         description = data["description"]
         weight = data["weight"]
-        purview = data["purview"]
     except (KeyError, TypeError):
         return response_json(err=1, msg="缺少参数")
 
-    if not isinstance(purview, dict):
-        return response_json(err=1, msg="提交信息不合法")
-
     if weight < 1: return response_json(err=1, msg="不能创建权重小于 1 的账户组")
-    user_group = UserGroup(group_name=group_name, description=description, weight=weight, purview=dumps(purview))
+    user_group = UserGroup(group_name=group_name, description=description, weight=weight)
 
     try:
         db.session.add(user_group)
@@ -116,12 +115,8 @@ def update_user_group() -> response_json:
         group_name = data["group_name"]
         description = data["description"]
         weight = data["weight"]
-        purview = data["purview"]
     except (KeyError, TypeError):
         return response_json(err=1, msg="缺少参数")
-
-    if not isinstance(purview, dict):
-        return response_json(err=1, msg="提交信息不合法")
 
     user_group = UserGroup.query.get(user_group_id)
     if user_group is None: return response_json(err=1, msg="该用户组不存在")
@@ -130,7 +125,6 @@ def update_user_group() -> response_json:
     user_group.group_name = group_name
     user_group.description = description
     user_group.weight = weight
-    user_group.purview = dumps(purview)
     db.session.add(user_group)
     db.session.commit()
 

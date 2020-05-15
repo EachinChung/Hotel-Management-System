@@ -7,8 +7,37 @@ create table user_group
     id          int unsigned not null primary key auto_increment,
     group_name  varchar(64)  not null unique,
     description varchar(200) not null,
-    weight      int unsigned not null,
-    purview     json         not null
+    weight      int unsigned not null
+);
+
+create table purview_user
+(
+    user_group_id  int unsigned not null primary key,
+    add_purview    tinyint      not null,
+    del_purview    tinyint      not null,
+    list_purview   tinyint      not null,
+    update_purview tinyint      not null,
+    foreign key (user_group_id) references user_group (id) on delete cascade on update cascade
+);
+
+create table purview_room
+(
+    user_group_id  int unsigned not null primary key,
+    add_purview    tinyint      not null,
+    del_purview    tinyint      not null,
+    list_purview   tinyint      not null,
+    update_purview tinyint      not null,
+    foreign key (user_group_id) references user_group (id) on delete cascade on update cascade
+);
+
+create table purview_room_type
+(
+    user_group_id  int unsigned not null primary key,
+    add_purview    tinyint      not null,
+    del_purview    tinyint      not null,
+    list_purview   tinyint      not null,
+    update_purview tinyint      not null,
+    foreign key (user_group_id) references user_group (id) on delete cascade on update cascade
 );
 
 create table user
@@ -73,65 +102,41 @@ create table check_in_order
 );
 
 # 以下为测试运行时，所必须的数据
-INSERT INTO hotel.user_group (id, group_name, description, weight, purview)
-VALUES (1, '超级管理员', '拥有所有权限，不可修改，不可删除。', 0, '{
-  "room": {
-    "add": true,
-    "del": true,
-    "list": true,
-    "update": true
-  },
-  "user": {
-    "add": true,
-    "del": true,
-    "list": true,
-    "update": true
-  },
-  "room-type": {
-    "add": true,
-    "del": true,
-    "list": true,
-    "update": true
-  }
-}');
-INSERT INTO hotel.user_group (id, group_name, description, weight, purview)
-VALUES (2, '测试', '测试用户组，生产环境需删除', 1, '{
-  "user": {
-    "add": false,
-    "del": false,
-    "list": false,
-    "update": false
-  },
-  "user-group": {
-    "list": false,
-    "purview": {
-      "template": false
-    }
-  }
-}');
-INSERT INTO hotel.user_group (id, group_name, description, weight, purview)
-VALUES (3, '测试缓存', '用来测试缓存的用户组，生产环境需删除', 2, '{
-  "room": {
-    "add": true,
-    "del": true,
-    "list": true,
-    "update": true
-  },
-  "user": {
-    "add": true,
-    "del": true,
-    "list": true,
-    "update": true
-  },
-  "room-type": {
-    "add": true,
-    "del": true,
-    "list": true,
-    "update": true
-  }
-}');
-INSERT INTO hotel.user_group (id, group_name, description, weight, purview)
-VALUES (4, '无权限用户组', '没有权限的用户组，生产环境需删除', 10, '{}');
+INSERT INTO hotel.user_group (id, group_name, description, weight)
+VALUES (1, '超级管理员', '拥有所有权限，不可修改，不可删除。', 0);
+INSERT INTO hotel.user_group (id, group_name, description, weight)
+VALUES (2, '测试', '测试用户组，生产环境需删除', 1);
+INSERT INTO hotel.user_group (id, group_name, description, weight)
+VALUES (3, '测试缓存', '用来测试缓存的用户组，生产环境需删除', 2);
+INSERT INTO hotel.user_group (id, group_name, description, weight)
+VALUES (4, '无权限用户组', '没有权限的用户组，生产环境需删除', 10);
+
+INSERT INTO hotel.purview_user (user_group_id, add_purview, del_purview, list_purview, update_purview)
+VALUES (1, 1, 1, 1, 1);
+INSERT INTO hotel.purview_user (user_group_id, add_purview, del_purview, list_purview, update_purview)
+VALUES (2, 1, 1, 1, 1);
+INSERT INTO hotel.purview_user (user_group_id, add_purview, del_purview, list_purview, update_purview)
+VALUES (3, 1, 1, 1, 1);
+INSERT INTO hotel.purview_user (user_group_id, add_purview, del_purview, list_purview, update_purview)
+VALUES (4, 0, 0, 0, 0);
+
+INSERT INTO hotel.purview_room (user_group_id, add_purview, del_purview, list_purview, update_purview)
+VALUES (1, 1, 1, 1, 1);
+INSERT INTO hotel.purview_room (user_group_id, add_purview, del_purview, list_purview, update_purview)
+VALUES (2, 1, 1, 1, 1);
+INSERT INTO hotel.purview_room (user_group_id, add_purview, del_purview, list_purview, update_purview)
+VALUES (3, 1, 1, 1, 1);
+INSERT INTO hotel.purview_room (user_group_id, add_purview, del_purview, list_purview, update_purview)
+VALUES (4, 0, 0, 0, 0);
+
+INSERT INTO hotel.purview_room_type (user_group_id, add_purview, del_purview, list_purview, update_purview)
+VALUES (1, 1, 1, 1, 1);
+INSERT INTO hotel.purview_room_type (user_group_id, add_purview, del_purview, list_purview, update_purview)
+VALUES (2, 1, 1, 1, 1);
+INSERT INTO hotel.purview_room_type (user_group_id, add_purview, del_purview, list_purview, update_purview)
+VALUES (3, 1, 1, 1, 1);
+INSERT INTO hotel.purview_room_type (user_group_id, add_purview, del_purview, list_purview, update_purview)
+VALUES (4, 0, 0, 0, 0);
 
 INSERT INTO hotel.user (phone, name, password_hash, user_group_id)
 VALUES ('13711164450', '钟予乾',

@@ -5,9 +5,10 @@ from time import time
 from flask import g, request
 from itsdangerous import BadSignature, TimedJSONWebSignatureSerializer
 
-from hotel.common import get_user_purview, response_json, safe_md5
+from hotel.common import response_json, safe_md5
 from hotel.diy_error import DiyError
 from hotel.my_redis import Redis
+from hotel.purview import get_user_purview_from_cache
 
 
 def get_token() -> str:
@@ -41,7 +42,6 @@ def _access_token(user) -> str:
     }
 
     Redis.hmset(sign, data)
-    Redis.set(f"{user.phone}-purview", user.user_group.purview, expire=None)
     Redis.expire(sign, 3600)
     return sign
 
@@ -154,7 +154,7 @@ def login_purview_required(func):
         if not g.session:
             return response_json(err=403, msg="请重新登录")
 
-        purview_required = get_user_purview()
+        purview_required = get_user_purview_from_cache()
         purview = request.path.split("/")
         del purview[0]
 

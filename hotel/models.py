@@ -11,7 +11,60 @@ class UserGroup(db.Model):
     group_name = db.Column(db.String)
     description = db.Column(db.String)
     weight = db.Column(db.Integer)
-    purview = db.Column(db.String)
+
+
+# noinspection DuplicatedCode
+class PurviewUser(db.Model):
+    """
+    用户权限表
+    """
+    user_group_id = db.Column(db.Integer, db.ForeignKey("user_group.id"), primary_key=True)
+    add_purview = db.Column(db.Boolean, default=False)
+    del_purview = db.Column(db.Boolean, default=False)
+    list_purview = db.Column(db.Boolean, default=False)
+    update_purview = db.Column(db.Boolean, default=False)
+
+    def get_dict(self):
+        return {
+            "add": self.add_purview, "del": self.del_purview,
+            "list": self.list_purview, "update": self.update_purview
+        }
+
+
+# noinspection DuplicatedCode
+class PurviewRoom(db.Model):
+    """
+    用户权限表
+    """
+    user_group_id = db.Column(db.Integer, db.ForeignKey("user_group.id"), primary_key=True)
+    add_purview = db.Column(db.Boolean, default=False)
+    del_purview = db.Column(db.Boolean, default=False)
+    list_purview = db.Column(db.Boolean, default=False)
+    update_purview = db.Column(db.Boolean, default=False)
+
+    def get_dict(self):
+        return {
+            "add": self.add_purview, "del": self.del_purview,
+            "list": self.list_purview, "update": self.update_purview
+        }
+
+
+# noinspection DuplicatedCode
+class PurviewRoomType(db.Model):
+    """
+    用户权限表
+    """
+    user_group_id = db.Column(db.Integer, db.ForeignKey("user_group.id"), primary_key=True)
+    add_purview = db.Column(db.Boolean, default=False)
+    del_purview = db.Column(db.Boolean, default=False)
+    list_purview = db.Column(db.Boolean, default=False)
+    update_purview = db.Column(db.Boolean, default=False)
+
+    def get_dict(self):
+        return {
+            "add": self.add_purview, "del": self.del_purview,
+            "list": self.list_purview, "update": self.update_purview
+        }
 
 
 class User(db.Model):

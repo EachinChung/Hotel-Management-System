@@ -84,15 +84,6 @@ class UserGroupTestCase(BaseTestCase):
         self.base_err_not_purview("list", test_token)
         self.post("/user/del", dict(phone="11111119999"))
 
-    def test_add_user_group_err_illegal(self):
-        response = self.api_add_user_group({
-            "group_name": "非法权限用户组",
-            "description": "",
-            "weight": 10,
-            "purview": "{}esad"
-        })
-        self.assertEqual("提交信息不合法", response["msg"])
-
     def test_add_user_group_err_repeat(self):
         response = self.api_add_user_group({
             "group_name": "无权限用户组",
@@ -126,16 +117,6 @@ class UserGroupTestCase(BaseTestCase):
             "purview": {}
         })
         self.assertEqual("不能修改超级管理员", response["msg"])
-
-    def test_update_user_group_err_illegal(self):
-        response = self.api_update_user_group({
-            "user_group_id": 14567,
-            "group_name": "修改管理员",
-            "description": "",
-            "weight": 100,
-            "purview": "{}0"
-        })
-        self.assertEqual("提交信息不合法", response["msg"])
 
     def test_update_user_group_err_not_user_group(self):
         response = self.api_update_user_group({
