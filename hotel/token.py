@@ -33,7 +33,7 @@ def _access_token(user) -> str:
     :param user:
     :return:
     """
-    sign = f"{user.phone}-" + safe_md5(f"{user.name}{time()}{getenv('ACCESS_TOKEN')}")
+    sign = f"{user.phone}-" + safe_md5(f"{user.name}{time()}")
     data = {
         "name": user.name,
         "phone": user.phone,
