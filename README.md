@@ -11,7 +11,7 @@ FRONT_END_URL=http://127.0.0.1:8080
 REFRESH_TOKEN=xxxxxxx
 
 # 数据库链接
-# MySql url 例: mysql+mysqlconnector://root:123456@localhost:3306/nfu
+# MySQL url 例: mysql+mysqlconnector://root:123456@localhost:3306/nfu
 DATABASE_URL=xxxxxxx
 # Redis 密码
 REDIS_PASSWORD=xxxxxxx
