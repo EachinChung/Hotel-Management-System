@@ -18,13 +18,26 @@ class UserTestCase(BaseTestCase):
     def api_user_list(self, json):
         return self.base_post("/list", json)
 
-    def test_add_user(self):
+    def test_user_base(self):
         response = self.api_add_user({
             "phone": "15811119999",
             "name": "测试用户",
             "user_group_id": 2
         })
         self.assertEqual("测试用户 添加成功", response["msg"])
+
+        response = self.api_user_list(dict(page=1, per_page=1, query=""))
+        self.assertEqual("ok", response["msg"])
+
+        response = self.api_update_user({
+            "phone": "15811119999",
+            "name": "测试员",
+            "user_group_id": 2
+        })
+        self.assertEqual("测试员 修改成功", response["msg"])
+
+        response = self.api_del_user(dict(phone="15811119999"))
+        self.assertEqual("测试员 删除成功", response["msg"])
 
     def test_add_user_err_illegal_phone(self):
         response = self.api_add_user({
@@ -36,7 +49,7 @@ class UserTestCase(BaseTestCase):
 
     def test_add_user_err_repeat(self):
         response = self.api_add_user({
-            "phone": "15811119999",
+            "phone": "13311119999",
             "name": "测试用户",
             "user_group_id": 2
         })
@@ -56,19 +69,6 @@ class UserTestCase(BaseTestCase):
         response = self.api_add_user(None)
         self.assertEqual('缺少参数', response['msg'])
 
-    def test_update_user(self):
-        self.api_add_user({
-            "phone": "18999999999",
-            "name": "测试用户1",
-            "user_group_id": 2
-        })
-        response = self.api_update_user({
-            "phone": "18999999999",
-            "name": "测试员",
-            "user_group_id": 2
-        })
-        self.assertEqual("测试员 修改成功", response["msg"])
-
     def test_update_user_err_not_user(self):
         response = self.api_update_user({
             "phone": "18999999990",
@@ -87,7 +87,7 @@ class UserTestCase(BaseTestCase):
 
     def test_update_user_err_weight(self):
         response = self.api_update_user({
-            "phone": "18999999999",
+            "phone": "13311119999",
             "name": "测试员",
             "user_group_id": 1
         })
@@ -95,7 +95,7 @@ class UserTestCase(BaseTestCase):
 
     def test_update_user_err_not_user_group(self):
         response = self.api_update_user({
-            "phone": "18999999999",
+            "phone": "13311119999",
             "name": "测试员",
             "user_group_id": 99
         })
@@ -128,14 +128,6 @@ class UserTestCase(BaseTestCase):
         self.assertEqual('缺少参数', response['msg'])
         response = self.api_del_user(None)
         self.assertEqual('缺少参数', response['msg'])
-
-    def test_del_user(self):
-        response = self.api_del_user(dict(phone="15811119999"))
-        self.assertEqual("测试用户 删除成功", response["msg"])
-
-    def test_user_list(self):
-        response = self.api_user_list(dict(page=1, per_page=1, query=""))
-        self.assertEqual("ok", response["msg"])
 
     def test_user_list_err_not_body(self):
         response = self.api_user_list({})
