@@ -71,7 +71,7 @@ class CacheTestCase(BaseTestCase):
         response = self.session.get(f"{self.url}/user-group/purview", headers={
             "Authorization": f"bearer {test_token}"
         }).json()
-        self.assertEqual("1", response["data"]["weight"])
+        self.assertEqual(1, response["data"]["weight"])
 
         # 用管理员用户修改刚添加的测试用户
         self.session.post(f"{self.url}/user/update", json={
@@ -90,7 +90,7 @@ class CacheTestCase(BaseTestCase):
         response = self.session.get(f"{self.url}/user-group/purview", headers={
             "Authorization": f"bearer {new_token['data']['accessToken']}"
         }).json()
-        self.assertEqual("2", response["data"]["weight"])
+        self.assertEqual(2, response["data"]["weight"])
 
     def test_cache_after_del_user(self):
         token, test_token, test_refresh_token = self.add_test_user()

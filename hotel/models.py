@@ -9,6 +9,7 @@ class UserGroup(db.Model):
     """
     id = db.Column(db.Integer, primary_key=True)
     group_name = db.Column(db.String)
+    description = db.Column(db.String)
     weight = db.Column(db.Integer)
     purview = db.Column(db.String)
 

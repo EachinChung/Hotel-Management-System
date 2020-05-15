@@ -11,6 +11,7 @@ class UserGroupTestCase(BaseTestCase):
     def base_err_not_purview(self, url, test_token):
         response = self.session.post(f"{self.url}/user-group/{url}", {
             "group_name": "测试用户组",
+            "description": "",
             "weight": 100,
             "purview": "{}"
         }, headers={
@@ -50,6 +51,7 @@ class UserGroupTestCase(BaseTestCase):
     def test_user_group_base(self):
         response = self.api_add_user_group({
             "group_name": "测试用户组",
+            "description": "",
             "weight": 100,
             "purview": {}
         })
@@ -59,6 +61,7 @@ class UserGroupTestCase(BaseTestCase):
         response = self.api_update_user_group({
             "user_group_id": user_group_list["data"]["items"][-1]["id"],
             "group_name": "测试呀",
+            "description": "",
             "weight": 100,
             "purview": {}
         })
@@ -84,6 +87,7 @@ class UserGroupTestCase(BaseTestCase):
     def test_add_user_group_err_illegal(self):
         response = self.api_add_user_group({
             "group_name": "非法权限用户组",
+            "description": "",
             "weight": 10,
             "purview": "{}esad"
         })
@@ -92,6 +96,7 @@ class UserGroupTestCase(BaseTestCase):
     def test_add_user_group_err_repeat(self):
         response = self.api_add_user_group({
             "group_name": "无权限用户组",
+            "description": "",
             "weight": 10,
             "purview": {}
         })
@@ -100,6 +105,7 @@ class UserGroupTestCase(BaseTestCase):
     def test_add_user_group_err_weight(self):
         response = self.api_add_user_group({
             "group_name": "测试用户组",
+            "description": "",
             "weight": 0,
             "purview": {}
         })
@@ -115,6 +121,7 @@ class UserGroupTestCase(BaseTestCase):
         response = self.api_update_user_group({
             "user_group_id": 1,
             "group_name": "修改管理员",
+            "description": "",
             "weight": 100,
             "purview": {}
         })
@@ -124,6 +131,7 @@ class UserGroupTestCase(BaseTestCase):
         response = self.api_update_user_group({
             "user_group_id": 14567,
             "group_name": "修改管理员",
+            "description": "",
             "weight": 100,
             "purview": "{}0"
         })
@@ -133,6 +141,7 @@ class UserGroupTestCase(BaseTestCase):
         response = self.api_update_user_group({
             "user_group_id": 1000000,
             "group_name": "未知用户组",
+            "description": "",
             "weight": 100,
             "purview": {}
         })

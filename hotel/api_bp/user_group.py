@@ -1,4 +1,4 @@
-from json import dumps
+from json import dumps, loads
 
 from flask import Blueprint, g, request
 from sqlalchemy.exc import IntegrityError
@@ -19,7 +19,7 @@ def purview_bp() -> response_json:
     :return:
     """
     purview = get_user_purview()
-    return response_json(dict(purview=purview, weight=g.session["weight"]))
+    return response_json(dict(purview=purview, weight=int(g.session["weight"])))
 
 
 @user_group_bp.route("/id-list")
@@ -54,8 +54,9 @@ def user_group_list() -> response_json:
         return dict(
             id=item.id,
             group_name=item.group_name,
+            description=item.description,
             weight=item.weight,
-            purview=item.purview
+            purview=loads(item.purview)
         )
 
     group_list = UserGroup.query.filter(UserGroup.group_name.like(
@@ -81,6 +82,7 @@ def add_user_group() -> response_json:
     try:
         data = request.get_json()
         group_name = data["group_name"]
+        description = data["description"]
         weight = data["weight"]
         purview = data["purview"]
     except (KeyError, TypeError):
@@ -90,7 +92,7 @@ def add_user_group() -> response_json:
         return response_json(err=1, msg="提交信息不合法")
 
     if weight < 1: return response_json(err=1, msg="不能创建权重小于 1 的账户组")
-    user_group = UserGroup(group_name=group_name, weight=weight, purview=dumps(purview))
+    user_group = UserGroup(group_name=group_name, description=description, weight=weight, purview=dumps(purview))
 
     try:
         db.session.add(user_group)
@@ -112,6 +114,7 @@ def update_user_group() -> response_json:
         data = request.get_json()
         user_group_id = data["user_group_id"]
         group_name = data["group_name"]
+        description = data["description"]
         weight = data["weight"]
         purview = data["purview"]
     except (KeyError, TypeError):
@@ -125,6 +128,7 @@ def update_user_group() -> response_json:
     if user_group.weight < 1: return response_json(err=1, msg="不能修改超级管理员")
 
     user_group.group_name = group_name
+    user_group.description = description
     user_group.weight = weight
     user_group.purview = dumps(purview)
     db.session.add(user_group)

@@ -4,10 +4,11 @@ use hotel;
 
 create table user_group
 (
-    id         int unsigned not null primary key auto_increment,
-    group_name varchar(64)  not null unique,
-    weight     int unsigned not null,
-    purview    json         not null
+    id          int unsigned not null primary key auto_increment,
+    group_name  varchar(64)  not null unique,
+    description varchar(200) not null,
+    weight      int unsigned not null,
+    purview     json         not null
 );
 
 create table user
@@ -72,8 +73,8 @@ create table check_in_order
 );
 
 # 以下为测试运行时，所必须的数据
-INSERT INTO hotel.user_group (id, group_name, weight, purview)
-VALUES (1, '超级管理员', 0, '{
+INSERT INTO hotel.user_group (id, group_name, description, weight, purview)
+VALUES (1, '超级管理员', '拥有所有权限，不可修改，不可删除。', 0, '{
   "room": {
     "add": true,
     "del": true,
@@ -93,8 +94,8 @@ VALUES (1, '超级管理员', 0, '{
     "update": true
   }
 }');
-INSERT INTO hotel.user_group (id, group_name, weight, purview)
-VALUES (2, '测试', 1, '{
+INSERT INTO hotel.user_group (id, group_name, description, weight, purview)
+VALUES (2, '测试', '测试用户组，生产环境需删除', 1, '{
   "user": {
     "add": false,
     "del": false,
@@ -108,8 +109,8 @@ VALUES (2, '测试', 1, '{
     }
   }
 }');
-INSERT INTO hotel.user_group (id, group_name, weight, purview)
-VALUES (3, '测试缓存', 2, '{
+INSERT INTO hotel.user_group (id, group_name, description, weight, purview)
+VALUES (3, '测试缓存', '用来测试缓存的用户组，生产环境需删除', 2, '{
   "room": {
     "add": true,
     "del": true,
@@ -129,8 +130,8 @@ VALUES (3, '测试缓存', 2, '{
     "update": true
   }
 }');
-INSERT INTO hotel.user_group (id, group_name, weight, purview)
-VALUES (4, '无权限用户组', 10, '{}');
+INSERT INTO hotel.user_group (id, group_name, description, weight, purview)
+VALUES (4, '无权限用户组', '没有权限的用户组，生产环境需删除', 10, '{}');
 
 INSERT INTO hotel.user (phone, name, password_hash, user_group_id)
 VALUES ('13711164450', '钟予乾',

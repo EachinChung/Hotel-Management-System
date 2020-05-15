@@ -157,16 +157,16 @@ def user_list() -> response_json:
 
     def _decode(item):  # 把数据库模型解析为 json
         return dict(
-            phone=item.phone,
-            name=item.name,
-            user_group_id=item.user_group_id,
-            user_group=item.user_group.group_name
+            phone=item[0],
+            name=item[1],
+            user_group=item[2],
+            user_group_id=item[3]
         )
 
-    users = User.query.filter(or_(
-        User.name.like(f"%{query}%"),
-        User.phone.like(f"%{query}%")
-    )).paginate(page=page, per_page=per_page)
+    users = db.session.query(User.phone, User.name, UserGroup.group_name, User.user_group_id).join(
+        User, User.user_group_id == UserGroup.id).filter(
+        or_(User.name.like(f"%{query}%"), User.phone.like(f"%{query}%"))
+    ).order_by(UserGroup.weight).order_by(User.name).paginate(page=page, per_page=per_page)
     items = tuple(map(_decode, users.items))
 
     return response_json(dict(
