@@ -1,30 +1,14 @@
+from json import dumps
+
 from flask import Blueprint, g, request
 from sqlalchemy.exc import IntegrityError
 
 from hotel.common import get_user_purview, response_json
-from hotel.diy_error import DiyError
 from hotel.extensions import db
 from hotel.models import UserGroup
 from hotel.token import login_required, login_sudo_required
 
 user_group_bp = Blueprint("user-group", __name__)
-
-
-def _get_user_group_data() -> tuple:
-    """
-    获取请求头的用户组数据
-    :return:
-    """
-    try:
-        data = request.get_json()
-        user_group_id = data["user_group_id"]
-        group_name = data["group_name"],
-        weight = data["weight"],
-        purview = data["purview"]
-    except (KeyError, TypeError):
-        raise DiyError("缺少参数")
-
-    return user_group_id, group_name, weight, purview
 
 
 @user_group_bp.route("/purview")
@@ -94,9 +78,19 @@ def add_user_group() -> response_json:
     添加用户组
     :return:
     """
-    user_group_id, group_name, weight, purview = _get_user_group_data()
+    try:
+        data = request.get_json()
+        group_name = data["group_name"]
+        weight = data["weight"]
+        purview = data["purview"]
+    except (KeyError, TypeError):
+        return response_json(err=1, msg="缺少参数")
+
+    if not isinstance(purview, dict):
+        return response_json(err=1, msg="提交信息不合法")
+
     if weight < 1: return response_json(err=1, msg="不能创建权重小于 1 的账户组")
-    user_group = UserGroup(group_name=group_name, weight=weight, purview=purview)
+    user_group = UserGroup(group_name=group_name, weight=weight, purview=dumps(purview))
 
     try:
         db.session.add(user_group)
@@ -114,15 +108,25 @@ def update_user_group() -> response_json:
     修改用户组
     :return:
     """
-    user_group_id, group_name, weight, purview = _get_user_group_data()
-    if weight < 1: return response_json(err=1, msg="不能修改超级管理员")
+    try:
+        data = request.get_json()
+        user_group_id = data["user_group_id"]
+        group_name = data["group_name"]
+        weight = data["weight"]
+        purview = data["purview"]
+    except (KeyError, TypeError):
+        return response_json(err=1, msg="缺少参数")
+
+    if not isinstance(purview, dict):
+        return response_json(err=1, msg="提交信息不合法")
 
     user_group = UserGroup.query.get(user_group_id)
     if user_group is None: return response_json(err=1, msg="该用户组不存在")
+    if user_group.weight < 1: return response_json(err=1, msg="不能修改超级管理员")
 
     user_group.group_name = group_name
     user_group.weight = weight
-    user_group.purview = purview
+    user_group.purview = dumps(purview)
     db.session.add(user_group)
     db.session.commit()
 
@@ -140,7 +144,7 @@ def del_user_group() -> response_json:
         data = request.get_json()
         user_group_id = data["user_group_id"]
     except (KeyError, TypeError):
-        raise DiyError("缺少参数")
+        return response_json(err=1, msg="缺少参数")
 
     user_group = UserGroup.query.get(user_group_id)
     if user_group is None: return response_json(err=1, msg="该用户组不存在")

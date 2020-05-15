@@ -131,7 +131,7 @@ def login_sudo_required(func):
             return response_json(err=403, msg="请重新登录")
 
         if int(g.session["weight"]) != 0:
-            return response_json(err=1, msg="该用户组没有权限")
+            return response_json(err=1, msg="该用户非超级管理员")
 
         return func(*args, **kw)
 

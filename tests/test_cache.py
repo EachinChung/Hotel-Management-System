@@ -19,10 +19,7 @@ class CacheTestCase(BaseTestCase):
         })
 
         # 登录测试用户
-        test_token = self.session.post(f"{self.url}/oauth/login", json={
-            "phone": "13309999999",
-            "password": "13309999999"
-        }).json()["data"]["token"]
+        test_token = self.login("13309999999", "13309999999").json()["data"]["token"]
         return token, test_token["accessToken"], test_token["refreshToken"]
 
     def get_new_test_user_token(self, test_token, test_refresh_token):

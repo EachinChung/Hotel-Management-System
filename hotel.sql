@@ -129,6 +129,8 @@ VALUES (3, '测试缓存', 2, '{
     "update": true
   }
 }');
+INSERT INTO hotel.user_group (id, group_name, weight, purview)
+VALUES (4, '无权限用户组', 10, '{}');
 
 INSERT INTO hotel.user (phone, name, password_hash, user_group_id)
 VALUES ('13711164450', '钟予乾',
@@ -136,6 +138,9 @@ VALUES ('13711164450', '钟予乾',
 INSERT INTO hotel.user (phone, name, password_hash, user_group_id)
 VALUES ('15811111111', '管理员',
         'pbkdf2:sha256:150000$xhALF1oo$554e1560e9c109fb79641ec5bc620caf86bf58682f638196b3d53d53173881ba', 1);
+INSERT INTO hotel.user (phone, name, password_hash, user_group_id)
+VALUES ('13311119999', '无权限用户',
+        'pbkdf2:sha256:150000$1rYcjYw2$20880762603fcff70e2992f7c57d2b5670fbb63d6c5608b78465679cda9416fd', 4);
 
 INSERT INTO hotel.room_type (id, room_type, number_of_beds, number_of_people, price_tag, update_datetime, operator)
 VALUES (1, '标准大床房', 1, 2, 300, '2020-05-12 00:46:05', '钟予乾');
