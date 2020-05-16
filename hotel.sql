@@ -145,8 +145,8 @@ INSERT INTO hotel.user (phone, name, password_hash, user_group_id)
 VALUES ('15811111111', '管理员',
         'pbkdf2:sha256:150000$xhALF1oo$554e1560e9c109fb79641ec5bc620caf86bf58682f638196b3d53d53173881ba', 1);
 INSERT INTO hotel.user (phone, name, password_hash, user_group_id)
-VALUES ('13311119999', '无权限用户',
-        'pbkdf2:sha256:150000$1rYcjYw2$20880762603fcff70e2992f7c57d2b5670fbb63d6c5608b78465679cda9416fd', 4);
+VALUES ('13311119999', '测试用户',
+        'pbkdf2:sha256:150000$84Cq9cAE$02d2ed3026fb6867d69c8c1f7a40f92949ae3fbda6e00adc02bb584ad0a2c97f', 2);
 
 INSERT INTO hotel.room_type (id, room_type, number_of_beds, number_of_people, price_tag, update_datetime, operator)
 VALUES (1, '标准大床房', 1, 2, 300, '2020-05-12 00:46:05', '钟予乾');

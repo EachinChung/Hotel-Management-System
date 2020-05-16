@@ -52,8 +52,7 @@ class UserGroupTestCase(BaseTestCase):
         response = self.api_add_user_group({
             "group_name": "测试用户组",
             "description": "",
-            "weight": 100,
-            "purview": {}
+            "weight": 100
         })
         self.assertEqual("测试用户组 添加成功", response["msg"])
 
@@ -62,8 +61,7 @@ class UserGroupTestCase(BaseTestCase):
             "user_group_id": user_group_list["data"]["items"][-1]["id"],
             "group_name": "测试呀",
             "description": "",
-            "weight": 100,
-            "purview": {}
+            "weight": 100
         })
 
         self.assertEqual("测试呀 修改成功", response["msg"])
@@ -88,8 +86,7 @@ class UserGroupTestCase(BaseTestCase):
         response = self.api_add_user_group({
             "group_name": "无权限用户组",
             "description": "",
-            "weight": 10,
-            "purview": {}
+            "weight": 10
         })
         self.assertEqual("用户组重复", response["msg"])
 
@@ -97,8 +94,13 @@ class UserGroupTestCase(BaseTestCase):
         response = self.api_add_user_group({
             "group_name": "测试用户组",
             "description": "",
-            "weight": 0,
-            "purview": {}
+            "weight": -10
+        })
+        self.assertEqual("不能创建权重小于 1 的账户组", response["msg"])
+        response = self.api_add_user_group({
+            "group_name": "测试用户组",
+            "description": "",
+            "weight": 0
         })
         self.assertEqual("不能创建权重小于 1 的账户组", response["msg"])
 
@@ -113,8 +115,7 @@ class UserGroupTestCase(BaseTestCase):
             "user_group_id": 1,
             "group_name": "修改管理员",
             "description": "",
-            "weight": 100,
-            "purview": {}
+            "weight": 100
         })
         self.assertEqual("不能修改超级管理员", response["msg"])
 
@@ -123,8 +124,7 @@ class UserGroupTestCase(BaseTestCase):
             "user_group_id": 1000000,
             "group_name": "未知用户组",
             "description": "",
-            "weight": 100,
-            "purview": {}
+            "weight": 100
         })
         self.assertEqual("该用户组不存在", response["msg"])
 
