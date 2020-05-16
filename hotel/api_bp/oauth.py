@@ -1,7 +1,7 @@
-from flask import Blueprint, request
+from flask import Blueprint
 
-from hotel.common import response_json
-from hotel.diy_error import DiyError
+from hotel.api_error import APIError
+from hotel.common import get_request_body, response_json
 from hotel.models import User
 from hotel.token import create_token, get_token, validate_token
 
@@ -15,22 +15,17 @@ def login_bp() -> response_json:
     return: json
     """
 
-    try:
-        data = request.get_json()
-        phone = data["phone"]
-        password = data["password"]
-    except (KeyError, TypeError):
-        return response_json(err=1, msg="缺少参数")
+    phone, password = get_request_body("phone", "password")
 
     if not phone.isdigit():
-        return response_json(err=1, msg="提交信息不合法")
+        raise APIError("提交信息不合法")
 
     user = User.query.get(phone)
     if user is None:
-        return response_json(err=1, msg="该账号不存在")
+        raise APIError("该账号不存在")
 
     if not user.validate_password(password):
-        return response_json(err=1, msg="密码错误")
+        raise APIError("密码错误")
 
     response_data = {
         "name": user.name,
@@ -47,13 +42,7 @@ def refresh_token() -> response_json:
     刷新令牌
     :return: json
     """
-
-    try:  # 验证 token 是否通过
-        data = validate_token(get_token())
-    except DiyError as err:
-        return response_json(err=err.code, msg=err.message)
-
+    data = validate_token(get_token())
     user = User.query.get(data["phone"])
-    if user is None: return response_json(err=403, msg="该账号已被注销")
-
+    if user is None: raise APIError("该账号已被注销")
     return response_json(create_token(user))

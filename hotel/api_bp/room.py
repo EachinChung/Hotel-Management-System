@@ -1,9 +1,10 @@
 from datetime import datetime
 
-from flask import Blueprint, g, request
+from flask import Blueprint, g
 from sqlalchemy.exc import IntegrityError
 
-from hotel.common import response_json
+from hotel.api_error import APIError
+from hotel.common import get_request_body, response_json
 from hotel.extensions import db
 from hotel.models import Room
 from hotel.token import login_purview_required
@@ -18,14 +19,7 @@ def add_room():
     添加房间
     :return:
     """
-    try:
-        data = request.get_json()
-        room_id = data["room_id"]
-        room_type_id = data["room_type_id"]
-        floor = data["floor"]
-    except (KeyError, TypeError):
-        return response_json(err=1, msg="缺少参数")
-
+    room_id, room_type_id, floor = get_request_body("room_id", "room_type_id", "floor")
     room = Room(
         id=room_id,
         floor=floor,
@@ -38,7 +32,7 @@ def add_room():
         db.session.add(room)
         db.session.commit()
     except IntegrityError:
-        return response_json(err=1, msg="房间重复")
+        raise APIError("房间重复")
 
     return response_json(msg=f"{room_id} 添加成功")
 
@@ -50,29 +44,23 @@ def update_room():
     修改房间
     :return:
     """
-    try:
-        data = request.get_json()
-        room_id = data["room_id"]
-        room_type_id = data["room_type_id"]
-        floor = data["floor"]
-        is_discounted = data["is_discounted"]
-    except (KeyError, TypeError):
-        return response_json(err=1, msg="缺少参数")
 
-    room = Room.query.get(room_id)
+    data = get_request_body("room_id", "room_type_id", "floor", "is_discounted")
+
+    room = Room.query.get(data[0])
     if room is None:
-        return response_json(err=1, msg="该房间不存在")
+        raise APIError("该房间不存在")
 
-    room.floor = floor
-    room.room_type_id = room_type_id
-    room.is_discounted = is_discounted
+    room.floor = data[2]
+    room.room_type_id = data[1]
+    room.is_discounted = data[3]
     room.update_datetime = datetime.today()
     room.operator = g.session["name"]
 
     db.session.add(room)
     db.session.commit()
 
-    return response_json(msg=f"{room_id} 修改成功")
+    return response_json(msg=f"{data[0]} 修改成功")
 
 
 @room_bp.route("/del", methods=["POST"])
@@ -82,15 +70,11 @@ def del_room():
     删除房间
     :return:
     """
-    try:
-        data = request.get_json()
-        room_id = data["room_id"]
-    except (KeyError, TypeError):
-        return response_json(err=1, msg="缺少参数")
+    room_id = get_request_body("room_id")
 
     room = Room.query.get(room_id)
     if room is None:
-        return response_json(err=1, msg="该房间不存在")
+        raise APIError("该房间不存在")
 
     db.session.delete(room)
     db.session.commit()
@@ -105,12 +89,7 @@ def room_list() -> response_json:
     房间列表
     :return:
     """
-    try:
-        data = request.get_json()
-        page = data["page"]
-        per_page = data["per_page"]
-    except (KeyError, TypeError):
-        return response_json(err=1, msg="缺少参数")
+    page, per_page = get_request_body("page", "per_page")
 
     def _decode(item):
         return dict(

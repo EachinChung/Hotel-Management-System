@@ -1,6 +1,8 @@
 from hashlib import md5
 
-from flask import jsonify
+from flask import jsonify, request
+
+from hotel.api_error import APIError
 
 
 def safe_md5(s: str) -> str:
@@ -14,6 +16,22 @@ def safe_md5(s: str) -> str:
         s = bytes(s, encoding='utf-8')
 
     return md5(s).hexdigest().upper()
+
+
+def get_request_body(*keys):
+    """
+    获取请求头的数据
+    :param keys:
+    :return:
+    """
+    try:
+        value = []
+        data = request.get_json()
+        for key in keys: value.append(data[key])
+    except (KeyError, TypeError):
+        raise APIError("缺少参数")
+    else:
+        return value
 
 
 def response_json(data: dict = None, err: int = 0, msg: str = "ok") -> jsonify:

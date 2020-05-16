@@ -36,6 +36,12 @@ class RoomTestCase(BaseTestCase):
         ))
         self.assertIn("房间重复", response["msg"])
 
+    def test_room_add_err_not_body(self):
+        response = self.api_room_add({})
+        self.assertEqual('缺少参数', response['msg'])
+        response = self.api_room_add(None)
+        self.assertEqual('缺少参数', response['msg'])
+
     def test_room_update(self):
         response = self.api_room_update(dict(
             room_id=1002,
@@ -65,3 +71,9 @@ class RoomTestCase(BaseTestCase):
     def test_room_list(self):
         response = self.api_room_list(dict(page=1, per_page=20))
         self.assertIn("ok", response["msg"])
+
+    def test_room_list_err_not_body(self):
+        response = self.api_room_list({})
+        self.assertEqual('缺少参数', response['msg'])
+        response = self.api_room_list(None)
+        self.assertEqual('缺少参数', response['msg'])

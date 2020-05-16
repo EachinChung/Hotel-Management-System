@@ -5,8 +5,8 @@ from time import time
 from flask import g, request
 from itsdangerous import BadSignature, TimedJSONWebSignatureSerializer
 
+from hotel.api_error import APIError
 from hotel.common import response_json, safe_md5
-from hotel.diy_error import DiyError
 from hotel.my_redis import Redis
 from hotel.purview import get_user_purview_from_cache
 
@@ -20,10 +20,10 @@ def get_token() -> str:
     try:
         token_type, token = request.headers["Authorization"].split(None, 1)
     except (KeyError, ValueError):
-        raise DiyError("请重新登录", code=403)
+        raise APIError("请重新登录", code=403)
 
     if token == "null" or token_type.lower() != "bearer":
-        raise DiyError("请重新登录", code=403)
+        raise APIError("请重新登录", code=403)
 
     return token
 
@@ -80,7 +80,7 @@ def validate_token(token: str, token_type: str = "REFRESH_TOKEN") -> dict:
     try:
         data = s.loads(token)
     except BadSignature:
-        raise DiyError("请重新登录", code=403)
+        raise APIError("请重新登录", code=403)
     else:
         return data
 

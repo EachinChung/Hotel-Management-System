@@ -2,6 +2,6 @@ from dataclasses import dataclass
 
 
 @dataclass
-class DiyError(Exception):
+class APIError(Exception):
     message: str
     code: int = 1
