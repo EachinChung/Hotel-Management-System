@@ -36,3 +36,6 @@ REDIS_PASSWORD=xxxxxxx
 ```
 ➜ python -m unittest -v
 ```
+
+## 开源说明
+此代码仅用于学习，未经许可，不能用于其他用途。
