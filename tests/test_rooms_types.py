@@ -27,6 +27,13 @@ class RoomTypeTestCase(BaseTestCase):
     def api_room_type_list(self):
         return self.base_get("/ids")
 
+    def api_room_type(self):
+        return self.base_get("/")
+
+    def test_room_type(self):
+        response = self.api_room_type()
+        self.assertIn("ok", response["msg"])
+
     def test_room_type_list(self):
         response = self.api_room_type_list()
         self.assertIn("ok", response["msg"])

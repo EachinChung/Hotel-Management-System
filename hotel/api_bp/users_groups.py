@@ -30,7 +30,7 @@ def user_group_id_list() -> response_json:
     获取用户组id
     :return:
     """
-    group_list = UserGroup.query.order_by(UserGroup.weight).all()
+    group_list = UserGroup.query.filter(UserGroup.weight >= g.session["weight"]).order_by(UserGroup.weight).all()
     items = tuple(map(lambda item: dict(
         id=item.id,
         weight=item.weight,

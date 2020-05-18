@@ -15,7 +15,7 @@ create table purview_user
     user_group_id  int unsigned not null primary key,
     add_purview    tinyint      not null,
     del_purview    tinyint      not null,
-    get_purview   tinyint      not null,
+    get_purview    tinyint      not null,
     update_purview tinyint      not null,
     foreign key (user_group_id) references user_group (id) on delete cascade on update cascade
 );
@@ -25,8 +25,9 @@ create table purview_room
     user_group_id  int unsigned not null primary key,
     add_purview    tinyint      not null,
     del_purview    tinyint      not null,
-    get_purview   tinyint      not null,
+    get_purview    tinyint      not null,
     update_purview tinyint      not null,
+    set_discounted tinyint      not null,
     foreign key (user_group_id) references user_group (id) on delete cascade on update cascade
 );
 
@@ -35,7 +36,7 @@ create table purview_room_type
     user_group_id  int unsigned not null primary key,
     add_purview    tinyint      not null,
     del_purview    tinyint      not null,
-    get_purview   tinyint      not null,
+    get_purview    tinyint      not null,
     update_purview tinyint      not null,
     foreign key (user_group_id) references user_group (id) on delete cascade on update cascade
 );
@@ -120,14 +121,14 @@ VALUES (3, 1, 1, 1, 1);
 INSERT INTO hotel.purview_user (user_group_id, add_purview, del_purview, get_purview, update_purview)
 VALUES (4, 0, 0, 0, 0);
 
-INSERT INTO hotel.purview_room (user_group_id, add_purview, del_purview, get_purview, update_purview)
-VALUES (1, 1, 1, 1, 1);
-INSERT INTO hotel.purview_room (user_group_id, add_purview, del_purview, get_purview, update_purview)
-VALUES (2, 1, 1, 1, 1);
-INSERT INTO hotel.purview_room (user_group_id, add_purview, del_purview, get_purview, update_purview)
-VALUES (3, 1, 1, 1, 1);
-INSERT INTO hotel.purview_room (user_group_id, add_purview, del_purview, get_purview, update_purview)
-VALUES (4, 0, 0, 0, 0);
+INSERT INTO hotel.purview_room (user_group_id, add_purview, del_purview, get_purview, update_purview, set_discounted)
+VALUES (1, 1, 1, 1, 1, 1);
+INSERT INTO hotel.purview_room (user_group_id, add_purview, del_purview, get_purview, update_purview, set_discounted)
+VALUES (2, 1, 1, 1, 1, 1);
+INSERT INTO hotel.purview_room (user_group_id, add_purview, del_purview, get_purview, update_purview, set_discounted)
+VALUES (3, 1, 1, 1, 1, 1);
+INSERT INTO hotel.purview_room (user_group_id, add_purview, del_purview, get_purview, update_purview, set_discounted)
+VALUES (4, 0, 0, 0, 0, 0);
 
 INSERT INTO hotel.purview_room_type (user_group_id, add_purview, del_purview, get_purview, update_purview)
 VALUES (1, 1, 1, 1, 1);

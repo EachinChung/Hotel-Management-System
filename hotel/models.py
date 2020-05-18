@@ -34,25 +34,26 @@ class PurviewUser(db.Model):
 # noinspection DuplicatedCode
 class PurviewRoom(db.Model):
     """
-    用户权限表
+    房间权限表
     """
     user_group_id = db.Column(db.Integer, db.ForeignKey("user_group.id"), primary_key=True)
     add_purview = db.Column(db.Boolean, default=False)
     del_purview = db.Column(db.Boolean, default=False)
     get_purview = db.Column(db.Boolean, default=False)
     update_purview = db.Column(db.Boolean, default=False)
+    set_discounted = db.Column(db.Boolean, default=False)
 
     def get_dict(self):
         return {
             "add": self.add_purview, "del": self.del_purview,
-            "get": self.get_purview, "update": self.update_purview
+            "get": self.get_purview, "update": self.update_purview, "set_discounted": self.set_discounted
         }
 
 
 # noinspection DuplicatedCode
 class PurviewRoomType(db.Model):
     """
-    用户权限表
+    房间类型权限表
     """
     user_group_id = db.Column(db.Integer, db.ForeignKey("user_group.id"), primary_key=True)
     add_purview = db.Column(db.Boolean, default=False)

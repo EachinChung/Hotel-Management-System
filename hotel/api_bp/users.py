@@ -33,7 +33,7 @@ class UsersAPI(MethodView):
             )
 
         users = db.session.query(User.phone, User.name, UserGroup.group_name, User.user_group_id).join(
-            User, User.user_group_id == UserGroup.id).filter(
+            User, User.user_group_id == UserGroup.id).filter(UserGroup.weight >= g.session["weight"]).filter(
             or_(User.name.like(f"%{query}%"), User.phone.like(f"%{query}%"))
         ).order_by(UserGroup.weight).order_by(User.name).paginate(page=page, per_page=per_page)
         items = tuple(map(_decode, users.items))
