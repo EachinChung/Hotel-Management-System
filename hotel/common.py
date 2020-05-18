@@ -18,7 +18,7 @@ def safe_md5(s: str) -> str:
     return md5(s).hexdigest().upper()
 
 
-def get_request_body(*keys):
+def get_request_body(*keys) -> list:
     """
     获取请求头的数据
     :param keys:

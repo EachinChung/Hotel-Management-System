@@ -21,13 +21,13 @@ class PurviewUser(db.Model):
     user_group_id = db.Column(db.Integer, db.ForeignKey("user_group.id"), primary_key=True)
     add_purview = db.Column(db.Boolean, default=False)
     del_purview = db.Column(db.Boolean, default=False)
-    list_purview = db.Column(db.Boolean, default=False)
+    get_purview = db.Column(db.Boolean, default=False)
     update_purview = db.Column(db.Boolean, default=False)
 
     def get_dict(self):
         return {
             "add": self.add_purview, "del": self.del_purview,
-            "list": self.list_purview, "update": self.update_purview
+            "get": self.get_purview, "update": self.update_purview
         }
 
 
@@ -39,13 +39,13 @@ class PurviewRoom(db.Model):
     user_group_id = db.Column(db.Integer, db.ForeignKey("user_group.id"), primary_key=True)
     add_purview = db.Column(db.Boolean, default=False)
     del_purview = db.Column(db.Boolean, default=False)
-    list_purview = db.Column(db.Boolean, default=False)
+    get_purview = db.Column(db.Boolean, default=False)
     update_purview = db.Column(db.Boolean, default=False)
 
     def get_dict(self):
         return {
             "add": self.add_purview, "del": self.del_purview,
-            "list": self.list_purview, "update": self.update_purview
+            "get": self.get_purview, "update": self.update_purview
         }
 
 
@@ -57,13 +57,13 @@ class PurviewRoomType(db.Model):
     user_group_id = db.Column(db.Integer, db.ForeignKey("user_group.id"), primary_key=True)
     add_purview = db.Column(db.Boolean, default=False)
     del_purview = db.Column(db.Boolean, default=False)
-    list_purview = db.Column(db.Boolean, default=False)
+    get_purview = db.Column(db.Boolean, default=False)
     update_purview = db.Column(db.Boolean, default=False)
 
     def get_dict(self):
         return {
             "add": self.add_purview, "del": self.del_purview,
-            "list": self.list_purview, "update": self.update_purview
+            "get": self.get_purview, "update": self.update_purview
         }
 
 

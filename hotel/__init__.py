@@ -1,12 +1,12 @@
 from flask import Flask
 
 from hotel.api_bp.oauth import oauth_bp
-from hotel.api_bp.room import room_bp
-from hotel.api_bp.room_type import room_type_bp
-from hotel.api_bp.user import user_bp
-from hotel.api_bp.user_group import user_group_bp
-from hotel.common import response_json
+from hotel.api_bp.rooms import rooms_bp
+from hotel.api_bp.rooms_types import rooms_types_bp
+from hotel.api_bp.users import users_bp
+from hotel.api_bp.users_groups import users_groups_bp
 from hotel.api_error import APIError
+from hotel.common import response_json
 from hotel.extensions import db
 
 
@@ -35,11 +35,12 @@ def register_blueprints(app) -> None:
     :param app:
     :return:
     """
+
     app.register_blueprint(oauth_bp, url_prefix="/oauth")
-    app.register_blueprint(room_bp, url_prefix="/room")
-    app.register_blueprint(room_type_bp, url_prefix="/room-type")
-    app.register_blueprint(user_bp, url_prefix="/user")
-    app.register_blueprint(user_group_bp, url_prefix="/user-group")
+    app.register_blueprint(rooms_bp, url_prefix="/rooms")
+    app.register_blueprint(rooms_types_bp, url_prefix="/rooms/types")
+    app.register_blueprint(users_bp, url_prefix="/users")
+    app.register_blueprint(users_groups_bp, url_prefix="/users/groups")
 
 
 def register_extensions(app) -> None:
@@ -59,27 +60,21 @@ def register_errors(app) -> None:
     """
 
     @app.errorhandler(400)
-    def page_not_found(e):
+    def page_not_found(e) -> response_json:
         return response_json(err=400, msg="请求报文存在语法错误"), 400
 
     @app.errorhandler(404)
-    def page_not_found(e):
+    def page_not_found(e) -> response_json:
         return response_json(err=404, msg="找不到此资源"), 404
 
     @app.errorhandler(405)
-    def method_not_allowed(e):
+    def method_not_allowed(e) -> response_json:
         return response_json(err=405, msg="方法不被允许"), 405
 
     @app.errorhandler(500)
-    def internal_server_error(e):
+    def internal_server_error(e) -> response_json:
         return response_json(err=500, msg="服务器内部错误"), 500
 
     @app.errorhandler(Exception)
-    def the_api_error(e):
-        """
-        处理自定义错误
-        :param e:
-        :return:
-        """
-        if isinstance(e, APIError):
-            return response_json(err=e.code, msg=e.message)
+    def the_api_error(e) -> response_json:
+        if isinstance(e, APIError): return response_json(err=e.code, msg=e.message)

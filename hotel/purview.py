@@ -44,7 +44,7 @@ def get_user_purview_from_mysql(user_group_id, recursive: bool = False) -> dict:
     purview = {
         "user": purview_user.get_dict(),
         "room": purview_room.get_dict(),
-        "room-type": purview_room_type.get_dict()
+        "room_type": purview_room_type.get_dict()
     }
 
     return purview

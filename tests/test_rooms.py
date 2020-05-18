@@ -2,23 +2,29 @@ from tests.base import BaseTestCase
 
 
 class RoomTestCase(BaseTestCase):
-    def base_room_get(self, api, json=None):
-        return self.get(f"/room{api}", json)
+    def base_get(self, api, json=None):
+        return self.get(f"/rooms{api}", json)
 
-    def base_room_post(self, api, json):
-        return self.post(f"/room{api}", json)
+    def base_post(self, api, json):
+        return self.post(f"/rooms{api}", json)
+
+    def base_put(self, api, json):
+        return self.put(f"/rooms{api}", json)
+
+    def base_delete(self, api):
+        return self.delete(f"/rooms{api}")
 
     def api_room_add(self, json):
-        return self.base_room_post("/add", json)
+        return self.base_post("/", json)
 
-    def api_room_del(self, json):
-        return self.base_room_post("/del", json)
+    def api_room_del(self, room_id):
+        return self.base_delete(f"/{room_id}")
 
-    def api_room_update(self, json):
-        return self.base_room_post("/update", json)
+    def api_room_update(self, room_id, json):
+        return self.base_put(f"/{room_id}", json)
 
     def api_room_list(self, json):
-        return self.base_room_post("/list", json)
+        return self.base_get("/", json)
 
     def test_room_add(self):
         response = self.api_room_add(dict(
@@ -43,8 +49,7 @@ class RoomTestCase(BaseTestCase):
         self.assertEqual('缺少参数', response['msg'])
 
     def test_room_update(self):
-        response = self.api_room_update(dict(
-            room_id=1002,
+        response = self.api_room_update(1002, dict(
             room_type_id=1,
             floor=2,
             is_discounted=True
@@ -52,8 +57,7 @@ class RoomTestCase(BaseTestCase):
         self.assertIn("1002", response["msg"])
 
     def test_room_update_err_room(self):
-        response = self.api_room_update(dict(
-            room_id=9999,
+        response = self.api_room_update(9999, dict(
             room_type_id=1,
             floor=2,
             is_discounted=True
@@ -61,19 +65,13 @@ class RoomTestCase(BaseTestCase):
         self.assertIn("该房间不存在", response["msg"])
 
     def test_room_del(self):
-        response = self.api_room_del(dict(room_id=1001))
+        response = self.api_room_del(1001)
         self.assertIn('1001', response["msg"])
 
     def test_room_del_err_room(self):
-        response = self.api_room_del(dict(room_id=1011))
+        response = self.api_room_del(1011)
         self.assertIn("该房间不存在", response["msg"])
 
     def test_room_list(self):
         response = self.api_room_list(dict(page=1, per_page=20))
         self.assertIn("ok", response["msg"])
-
-    def test_room_list_err_not_body(self):
-        response = self.api_room_list({})
-        self.assertEqual('缺少参数', response['msg'])
-        response = self.api_room_list(None)
-        self.assertEqual('缺少参数', response['msg'])

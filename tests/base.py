@@ -24,21 +24,39 @@ class BaseTestCase(unittest.TestCase):
             password = self.password
 
         return self.session.post(
-            url=f"{self.url}/oauth/login",
+            url=f"{self.url}/oauth/",
             json={
                 "phone": phone,
                 "password": password
             }
         )
 
-    def post(self, uri, json):
-        token = self.login().json()["data"]["token"]["accessToken"]
-        return self.session.post(f"{self.url}{uri}", json=json, headers={
-            "Authorization": f"bearer {token}"
-        }).json()
-
     def get(self, uri, params=None):
         token = self.login().json()["data"]["token"]["accessToken"]
         return self.session.get(f"{self.url}{uri}", params=params, headers={
+            "Authorization": f"bearer {token}"
+        }).json()
+
+    def post(self, uri, json, params=None):
+        token = self.login().json()["data"]["token"]["accessToken"]
+        return self.session.post(f"{self.url}{uri}", json=json, params=params, headers={
+            "Authorization": f"bearer {token}"
+        }).json()
+
+    def put(self, uri, json, params=None):
+        token = self.login().json()["data"]["token"]["accessToken"]
+        return self.session.put(f"{self.url}{uri}", json=json, params=params, headers={
+            "Authorization": f"bearer {token}"
+        }).json()
+
+    def patch(self, uri, json, params=None):
+        token = self.login().json()["data"]["token"]["accessToken"]
+        return self.session.patch(f"{self.url}{uri}", json=json, params=params, headers={
+            "Authorization": f"bearer {token}"
+        }).json()
+
+    def delete(self, uri, *, json=None, params=None):
+        token = self.login().json()["data"]["token"]["accessToken"]
+        return self.session.delete(f"{self.url}{uri}", json=json, params=params, headers={
             "Authorization": f"bearer {token}"
         }).json()

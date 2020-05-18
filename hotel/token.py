@@ -20,10 +20,10 @@ def get_token() -> str:
     try:
         token_type, token = request.headers["Authorization"].split(None, 1)
     except (KeyError, ValueError):
-        raise APIError("请重新登录", code=403)
+        raise APIError("请重新登录", code=401)
 
     if token == "null" or token_type.lower() != "bearer":
-        raise APIError("请重新登录", code=403)
+        raise APIError("请重新登录", code=401)
 
     return token
 
@@ -80,7 +80,7 @@ def validate_token(token: str, token_type: str = "REFRESH_TOKEN") -> dict:
     try:
         data = s.loads(token)
     except BadSignature:
-        raise APIError("请重新登录", code=403)
+        raise APIError("请重新登录", code=401)
     else:
         return data
 
@@ -103,7 +103,7 @@ def login_required(func):
         g.session = Redis.hgetall(token)
 
         if not g.session:
-            return response_json(err=403, msg="请重新登录")
+            return response_json(err=401, msg="请重新登录")
 
         return func(*args, **kw)
 
@@ -128,7 +128,7 @@ def login_sudo_required(func):
         g.session = Redis.hgetall(token)
 
         if not g.session:
-            return response_json(err=403, msg="请重新登录")
+            return response_json(err=401, msg="请重新登录")
 
         if int(g.session["weight"]) != 0:
             return response_json(err=1, msg="该用户非超级管理员")
@@ -138,32 +138,28 @@ def login_sudo_required(func):
     return wrapper
 
 
-def login_purview_required(func):
+def login_purview_required(*purview):
     """
-    需要权限
-    :param func: 使用此装饰器的函数
-    :return: 指向新函数，或者返回错误
+    接口需要权限
+    :param purview:
+    :return:
     """
 
-    @wraps(func)
-    def wrapper(*args, **kw):
-        # 验证 token 是否有效
-        token = get_token()
-        g.session = Redis.hgetall(token)
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kw):
 
-        if not g.session:
-            return response_json(err=403, msg="请重新登录")
+            token = get_token()  # 验证 token 是否有效
+            g.session = Redis.hgetall(token)
 
-        purview_required = get_user_purview_from_cache()
-        purview = request.path.split("/")
-        del purview[0]
+            if not g.session: return response_json(err=401, msg="请重新登录")
+            purview_required = get_user_purview_from_cache()
 
-        for item in purview:
-            purview_required = purview_required[item]
+            for item in purview: purview_required = purview_required[item]
+            if not purview_required: return response_json(err=1, msg="该用户组没有权限")
 
-        if not purview_required:
-            return response_json(err=1, msg="该用户组没有权限")
+            return func(*args, **kw)
 
-        return func(*args, **kw)
+        return wrapper
 
-    return wrapper
+    return decorator

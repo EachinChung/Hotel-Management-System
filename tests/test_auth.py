@@ -4,7 +4,7 @@ from tests.base import BaseTestCase
 class AuthTestCase(BaseTestCase):
 
     def api_refresh_token(self, token):
-        return self.session.get(f"{self.url}/oauth/refresh", headers={
+        return self.session.patch(f"{self.url}/oauth/", headers={
             "Authorization": f"bearer {token}"
         })
 
@@ -33,9 +33,9 @@ class AuthTestCase(BaseTestCase):
         self.assertIn('密码错误', response.json()['msg'])
 
     def test_fail_login_not_body(self):
-        response = self.session.post(f"{self.url}/oauth/login")
+        response = self.session.post(f"{self.url}/oauth/")
         self.assertIn('缺少参数', response.json()['msg'])
-        response = self.session.post(f"{self.url}/oauth/login", json={})
+        response = self.session.post(f"{self.url}/oauth/", json={})
         self.assertIn('缺少参数', response.json()['msg'])
 
     def test_refresh_token(self):
@@ -44,7 +44,7 @@ class AuthTestCase(BaseTestCase):
         self.assertIn("accessToken", response.text)
 
     def test_refresh_not_token(self):
-        response = self.session.get(f"{self.url}/oauth/refresh")
+        response = self.session.patch(f"{self.url}/oauth/")
         self.assertIn("请重新登录", response.json()["msg"])
 
     def test_refresh_token_expired(self):
