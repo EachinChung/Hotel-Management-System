@@ -1,4 +1,7 @@
-from flask import Flask
+from datetime import datetime
+from traceback import format_exc
+
+from flask import Flask, request
 
 from hotel.api_bp.oauth import oauth_bp
 from hotel.api_bp.rooms import rooms_bp
@@ -71,10 +74,15 @@ def register_errors(app) -> None:
     def method_not_allowed(e) -> response_json:
         return response_json(err=405, msg="方法不被允许"), 405
 
-    @app.errorhandler(500)
-    def internal_server_error(e) -> response_json:
-        return response_json(err=500, msg="服务器内部错误"), 500
-
     @app.errorhandler(Exception)
     def the_api_error(e) -> response_json:
-        if isinstance(e, APIError): return response_json(err=e.code, msg=e.message)
+        if isinstance(e, APIError):
+            return response_json(err=e.code, msg=e.message)
+
+        with open("err.log", "a") as f:
+            f.write(f"\n{request.url} - {request.remote_addr}")
+            f.write(datetime.today().strftime("%Y-%m-%d %H:%M:%S"))
+            f.write(format_exc())
+            f.write("\n")
+
+        return response_json(err=500, msg="服务器内部错误"), 500
