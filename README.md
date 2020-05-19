@@ -3,10 +3,6 @@
 - 请在根目录创建 .env 文件
 
 ```
-# host
-API_URL=http://127.0.0.1:5000
-FRONT_END_URL=http://127.0.0.1:8080
-
 # 刷新token的密钥(随机的字符串即可)
 REFRESH_TOKEN=xxxxxxx
 
