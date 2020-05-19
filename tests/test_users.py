@@ -71,6 +71,14 @@ class UserTestCase(BaseTestCase):
         })
         self.assertEqual("只能创建比自己权重低的账户", response["msg"])
 
+    def test_add_user_err_user_group(self):
+        response = self.api_add_user({
+            "phone": "15811119999",
+            "name": "测试用户",
+            "user_group_id": 9999999
+        })
+        self.assertEqual("该用户组不存在", response["msg"])
+
     def test_add_user_err_fail_user_not_body(self):
         response = self.api_add_user({})
         self.assertEqual('缺少参数', response['msg'])

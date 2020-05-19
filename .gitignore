@@ -11,3 +11,6 @@ __pycache__
 .env
 .DS_Store
 .coverage
+
+# 错误日志
+err.log

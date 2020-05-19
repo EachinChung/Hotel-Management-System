@@ -1,3 +1,4 @@
+from hotel.extensions import db
 from tests.base import BaseTestCase
 
 
@@ -69,16 +70,17 @@ class UserGroupTestCase(BaseTestCase):
             "name": "测试用户",
             "user_group_id": 4
         })
-        test_token = self.login("11111119999", "11111119999").json()["data"]["token"]["accessToken"]
+        db.session.remove()
+        test_token = self.login("11111119999", "11111119999").get_json()["data"]["token"]["accessToken"]
 
-        response = self.session.post(f"{self.url}/users/groups/", {
+        response = self.client.post("/users/groups/", json={
             "group_name": "测试用户组",
             "description": "",
-            "weight": 100,
-            "purview": "{}"
+            "weight": 100
         }, headers={
             "Authorization": f"bearer {test_token}"
-        }).json()
+        }).get_json()
+
         self.assertEqual("该用户非超级管理员", response["msg"])
         self.delete("/users/11111119999")
 

@@ -1,3 +1,4 @@
+from hotel.extensions import db
 from tests.base import BaseTestCase
 
 
@@ -46,6 +47,7 @@ class RoomTypeTestCase(BaseTestCase):
             price_tag=300
         ))
         self.assertIn("豪华大床房", response["msg"])
+        db.session.remove()
 
         room_type = self.api_room_type_list()
         response = self.api_room_type_update(room_type["data"]["items"][-1]["room_type_id"], dict(
@@ -55,6 +57,7 @@ class RoomTypeTestCase(BaseTestCase):
             price_tag=300
         ))
         self.assertIn("房间类型重复", response["msg"])
+        db.session.remove()
         response = self.api_room_type_update(room_type["data"]["items"][-1]["room_type_id"], dict(
             room_type="海景大床房",
             number_of_beds=1,
@@ -62,6 +65,7 @@ class RoomTypeTestCase(BaseTestCase):
             price_tag=300
         ))
         self.assertIn("海景大床房", response["msg"])
+        db.session.remove()
         response = self.api_room_type_del(room_type["data"]["items"][-1]["room_type_id"])
         self.assertIn("海景大床房", response["msg"])
 

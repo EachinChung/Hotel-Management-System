@@ -80,9 +80,9 @@ def register_errors(app) -> None:
             return response_json(err=e.code, msg=e.message)
 
         with open("err.log", "a") as f:
-            f.write(f"\n{request.url} - {request.remote_addr}")
+            f.write(f"\n{request.url} - {request.remote_addr} - {request.method}\n")
             f.write(datetime.today().strftime("%Y-%m-%d %H:%M:%S"))
-            f.write(format_exc())
+            f.write(f"\n{format_exc()}")
             f.write("\n")
 
         return response_json(err=500, msg="服务器内部错误"), 500
