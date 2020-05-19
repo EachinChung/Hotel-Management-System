@@ -20,20 +20,8 @@ def room_type_id_list() -> response_json:
     房间类型id列表
     :return:
     """
-
-    def _decode(item):
-        return dict(
-            room_type_id=item.id,
-            room_type=item.room_type,
-            number_of_beds=item.number_of_beds,
-            number_of_people=item.number_of_people,
-            price_tag=item.price_tag,
-            update_datetime=item.update_datetime,
-            operator=item.operator
-        )
-
     room_types = RoomType.query.all()
-    items = list(map(_decode, room_types))
+    items = list(map(lambda item: dict(room_type_id=item.id, room_type=item.room_type), room_types))
     return response_json(dict(items=items))
 
 
@@ -47,6 +35,7 @@ class RoomsTypesAPI(MethodView):
         """
         page = request.args.get('page', default=1, type=int)
         per_page = request.args.get('per_page', default=2, type=int)
+        query = request.args.get("query", default="")
 
         def _decode(item):
             return dict(
@@ -55,11 +44,13 @@ class RoomsTypesAPI(MethodView):
                 number_of_beds=item.number_of_beds,
                 number_of_people=item.number_of_people,
                 price_tag=item.price_tag,
-                update_datetime=item.update_datetime,
+                update_datetime=item.update_datetime.strftime("%Y-%m-%d %H:%M:%S"),
                 operator=item.operator
             )
 
-        room_types = RoomType.query.paginate(page=page, per_page=per_page)
+        room_types = RoomType.query.filter(
+            RoomType.room_type.like(f"%{query}%")
+        ).paginate(page=page, per_page=per_page)
         items = list(map(_decode, room_types.items))
 
         return response_json(dict(

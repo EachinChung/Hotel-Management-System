@@ -17,12 +17,8 @@ class BaseTestCase(unittest.TestCase):
         self.r = StrictRedis(host='localhost', port=6379, password=environ.get('REDIS_PASSWORD'), decode_responses=True)
 
     def login(self, phone=None, password=None):
-
-        if phone is None:
-            phone = self.phone
-        if password is None:
-            password = self.password
-
+        if phone is None: phone = self.phone
+        if password is None: password = self.password
         return self.session.post(
             url=f"{self.url}/oauth/",
             json={

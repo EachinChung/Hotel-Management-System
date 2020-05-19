@@ -1,7 +1,13 @@
-# 此为注释 ,以下将被 Git 忽略
+# 以下将被 Git 忽略
+
+# 文件夹
 /venv/
 /.idea/
 /.vscode/
+/htmlcov/
 __pycache__
+
+# 文件
 .env
 .DS_Store
+.coverage

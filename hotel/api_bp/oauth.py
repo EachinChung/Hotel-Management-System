@@ -23,11 +23,8 @@ class OauthAPI(MethodView):
             raise APIError("提交信息不合法")
 
         user = User.query.get(phone)
-        if user is None:
-            raise APIError("该账号不存在")
-
-        if not user.validate_password(password):
-            raise APIError("密码错误")
+        if user is None: raise APIError("该账号不存在")
+        if not user.validate_password(password): raise APIError("密码错误")
 
         response_data = {
             "name": user.name,

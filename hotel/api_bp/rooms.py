@@ -30,6 +30,7 @@ class RoomsAPI(MethodView):
                 id=item[0].id,
                 floor=item[0].floor,
                 room_type=item[1].room_type,
+                room_type_id=item[0].room_type_id,
                 is_discounted=item[0].is_discounted,
                 update_datetime=item[0].update_datetime.strftime("%Y-%m-%d %H:%M:%S"),
                 operator=item[0].operator
@@ -127,8 +128,7 @@ class RoomAPI(MethodView):
         """
 
         room = Room.query.get(room_id)
-        if room is None:
-            raise APIError("该房间不存在")
+        if room is None: raise APIError("该房间不存在")
 
         db.session.delete(room)
         db.session.commit()

@@ -34,7 +34,14 @@ REDIS_PASSWORD=xxxxxxx
 ### 运行测试用例
 
 ```
-➜ python -m unittest -v
+# 运行单元测试
+➜ coverage run -m unittest discover
+
+# 生成测试报告
+➜ coverage html
+
+# 清除测试报告，仅删除 .coverage 文件
+➜ coverage erase
 ```
 
 ## 开源说明
