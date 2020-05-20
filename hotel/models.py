@@ -3,6 +3,18 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from hotel.extensions import db
 
 
+class Log(db.Model):
+    """
+    日志表
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    ip = db.Column(db.Integer)
+    user = db.Column(db.String)
+    user_group = db.Column(db.String)
+    message = db.Column(db.String)
+    datetime = db.Column(db.DateTime)
+
+
 class UserGroup(db.Model):
     """
     用户组
@@ -23,11 +35,13 @@ class PurviewUser(db.Model):
     del_purview = db.Column(db.Boolean, default=False)
     get_purview = db.Column(db.Boolean, default=False)
     update_purview = db.Column(db.Boolean, default=False)
+    set_activation = db.Column(db.Boolean, default=False)
 
     def get_dict(self):
         return {
             "add": self.add_purview, "del": self.del_purview,
-            "get": self.get_purview, "update": self.update_purview
+            "get": self.get_purview, "update": self.update_purview,
+            "set_activation": self.set_activation
         }
 
 
@@ -46,7 +60,8 @@ class PurviewRoom(db.Model):
     def get_dict(self):
         return {
             "add": self.add_purview, "del": self.del_purview,
-            "get": self.get_purview, "update": self.update_purview, "set_discounted": self.set_discounted
+            "get": self.get_purview, "update": self.update_purview,
+            "set_discounted": self.set_discounted
         }
 
 
@@ -60,11 +75,13 @@ class PurviewRoomType(db.Model):
     del_purview = db.Column(db.Boolean, default=False)
     get_purview = db.Column(db.Boolean, default=False)
     update_purview = db.Column(db.Boolean, default=False)
+    set_price = db.Column(db.Boolean, default=False)
 
     def get_dict(self):
         return {
             "add": self.add_purview, "del": self.del_purview,
-            "get": self.get_purview, "update": self.update_purview
+            "get": self.get_purview, "update": self.update_purview,
+            "set_price": self.set_price
         }
 
 
@@ -76,6 +93,7 @@ class User(db.Model):
     name = db.Column(db.String)
     password_hash = db.Column(db.String)
     user_group_id = db.Column(db.Integer, db.ForeignKey("user_group.id"))
+    is_activation = db.Column(db.Boolean, default=True)
     user_group = db.relationship('UserGroup')
 
     def set_password(self, password: str) -> None:
@@ -94,6 +112,18 @@ class RoomType(db.Model):
     number_of_beds = db.Column(db.Integer)
     number_of_people = db.Column(db.Integer)
     price_tag = db.Column(db.Float)
+    update_datetime = db.Column(db.DateTime)
+    operator = db.Column(db.String)
+
+
+class RoomTypePrice(db.Model):
+    """
+    房间类型价格表
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    room_type_id = db.Column(db.Integer, db.ForeignKey("room_type.id"))
+    customer_type = db.Column(db.String)
+    price = db.Column(db.Float)
     update_datetime = db.Column(db.DateTime)
     operator = db.Column(db.String)
 

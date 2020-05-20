@@ -9,6 +9,9 @@ class UserTestCase(BaseTestCase):
     def base_post(self, api, json):
         return self.post(f"/users{api}", json)
 
+    def base_patch(self, api, json):
+        return self.patch(f"/users{api}", json)
+
     def base_put(self, api, json):
         return self.put(f"/users{api}", json)
 
@@ -27,6 +30,9 @@ class UserTestCase(BaseTestCase):
     def api_user_list(self, json):
         return self.base_get(f"/", json)
 
+    def api_set_activation(self, phone, json):
+        return self.base_patch(f"/{phone}", json)
+
     def test_user_base(self):
         response = self.api_add_user({
             "phone": "15811119999",
@@ -44,8 +50,30 @@ class UserTestCase(BaseTestCase):
         })
         self.assertEqual("测试员 修改成功", response["msg"])
 
+        response = self.api_set_activation(15811119999, {
+            "is_activation": False
+        })
+        self.assertEqual("测试员 修改为非激活状态", response["msg"])
+
+        response = self.api_set_activation(15811119999, {
+            "is_activation": True
+        })
+        self.assertEqual("测试员 修改为激活状态", response["msg"])
+
         response = self.api_del_user(15811119999)
         self.assertEqual("测试员 删除成功", response["msg"])
+
+    def test_set_activation_err(self):
+        response = self.api_set_activation(999, {
+            "is_activation": True
+        })
+        self.assertEqual("该用户不存在", response["msg"])
+
+    def test_set_activation_illegal_weight(self):
+        response = self.api_set_activation(self.phone, {
+            "is_activation": True
+        })
+        self.assertEqual("只能修改比自己权重低的账户状态", response["msg"])
 
     def test_add_user_err_illegal_phone(self):
         response = self.api_add_user({
@@ -86,37 +114,37 @@ class UserTestCase(BaseTestCase):
         self.assertEqual('缺少参数', response['msg'])
 
     def test_update_user_err_not_user(self):
-        response = self.api_update_user(18999999990,{
+        response = self.api_update_user(18999999990, {
             "name": "测试员",
             "user_group_id": 2
         })
         self.assertEqual("该用户不存在", response["msg"])
 
     def test_update_user_err_not_weight(self):
-        response = self.api_update_user(self.phone,{
+        response = self.api_update_user(self.phone, {
             "name": "测试员",
             "user_group_id": 2
         })
         self.assertEqual("只能修改比自己权重低的账户", response["msg"])
 
     def test_update_user_err_weight(self):
-        response = self.api_update_user(13311119999,{
+        response = self.api_update_user(13311119999, {
             "name": "测试员",
             "user_group_id": 1
         })
         self.assertEqual("只能修改为比自己权重低的账户", response["msg"])
 
     def test_update_user_err_not_user_group(self):
-        response = self.api_update_user(13311119999,{
+        response = self.api_update_user(13311119999, {
             "name": "测试员",
             "user_group_id": 99
         })
         self.assertEqual("该用户组不存在", response["msg"])
 
     def test_update_user_err_not_body(self):
-        response = self.api_update_user(self.phone,{})
+        response = self.api_update_user(self.phone, {})
         self.assertEqual('缺少参数', response['msg'])
-        response = self.api_update_user(self.phone,None)
+        response = self.api_update_user(self.phone, None)
         self.assertEqual('缺少参数', response['msg'])
 
     def test_del_user_err_illegal_phone(self):

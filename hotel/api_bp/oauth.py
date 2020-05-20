@@ -18,13 +18,12 @@ class OauthAPI(MethodView):
         """
 
         phone, password = get_request_body("phone", "password")
-
-        if not phone.isdigit():
-            raise APIError("提交信息不合法")
+        if not phone.isdigit(): raise APIError("提交信息不合法")
 
         user = User.query.get(phone)
         if user is None: raise APIError("该账号不存在")
         if not user.validate_password(password): raise APIError("密码错误")
+        if not user.is_activation: raise APIError("该账号暂为冻结状态，请联系管理员")
 
         response_data = {
             "name": user.name,
@@ -42,6 +41,7 @@ class OauthAPI(MethodView):
         data = validate_token(get_token())
         user = User.query.get(data["phone"])
         if user is None: raise APIError("该账号已被注销")
+        if not user.is_activation: raise APIError("该账号暂为冻结状态，请联系管理员")
         return response_json(create_token(user))
 
 

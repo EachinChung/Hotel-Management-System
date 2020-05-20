@@ -1,7 +1,6 @@
 from flask import Blueprint, g, request
 from flask.views import MethodView
 from sqlalchemy import or_
-from sqlalchemy.exc import IntegrityError
 
 from hotel.api_error import APIError
 from hotel.common import get_request_body, response_json
@@ -26,13 +25,14 @@ class UsersAPI(MethodView):
 
         def _decode(item):  # 把数据库模型解析为 json
             return dict(
-                phone=item[0],
-                name=item[1],
-                user_group=item[2],
-                user_group_id=item[3]
+                phone=item[0].phone,
+                name=item[0].name,
+                user_group=item[1].group_name,
+                user_group_id=item[0].user_group_id,
+                is_activation=item[0].is_activation
             )
 
-        users = db.session.query(User.phone, User.name, UserGroup.group_name, User.user_group_id).join(
+        users = db.session.query(User, UserGroup).join(
             User, User.user_group_id == UserGroup.id).filter(UserGroup.weight >= g.session["weight"]).filter(
             or_(User.name.like(f"%{query}%"), User.phone.like(f"%{query}%"))
         ).order_by(UserGroup.weight).order_by(User.name).paginate(page=page, per_page=per_page)
@@ -63,19 +63,43 @@ class UsersAPI(MethodView):
         if int(g.session["weight"]) >= user_group.weight:
             raise APIError("只能创建比自己权重低的账户")
 
+        user = User.query.get(phone)
+        if user is not None: raise APIError("账号重复")
+
         user = User(phone=phone, name=name, user_group_id=user_group_id)
         user.set_password(phone)
 
-        try:
-            db.session.add(user)
-            db.session.commit()
-        except IntegrityError:
-            raise APIError("账号重复")
+        db.session.add(user)
+        db.session.commit()
 
         return response_json(msg=f"{name} 添加成功")
 
 
 class UserAPI(MethodView):
+    @login_purview_required("user", "set_activation")
+    def patch(self, phone):
+        """
+        修改用户状态
+        :param phone:
+        :return:
+        """
+        is_activation = get_request_body("is_activation")[0]
+        user = User.query.get(phone)
+        if user is None: raise APIError("该用户不存在")
+
+        if int(g.session["weight"]) >= user.user_group.weight:
+            raise APIError("只能修改比自己权重低的账户状态")
+
+        user.is_activation = is_activation
+
+        Redis.fuzzy_delete(phone)
+        db.session.add(user)
+        db.session.commit()
+        Redis.fuzzy_delete(phone)
+
+        message = "激活状态" if is_activation else "非激活状态"
+        return response_json(msg=f"{user.name} 修改为{message}")
+
     @login_purview_required("user", "update")
     def put(self, phone) -> response_json:
         """
@@ -132,4 +156,4 @@ class UserAPI(MethodView):
 
 
 users_bp.add_url_rule("/", view_func=UsersAPI.as_view("users"), methods=("GET", "POST"))
-users_bp.add_url_rule("/<int:phone>", view_func=UserAPI.as_view("user"), methods=("PUT", "DELETE"))
+users_bp.add_url_rule("/<int:phone>", view_func=UserAPI.as_view("user"), methods=("PATCH", "PUT", "DELETE"))

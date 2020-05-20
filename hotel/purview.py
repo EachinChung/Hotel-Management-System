@@ -38,9 +38,6 @@ def get_user_purview_from_mysql(user_group_id, recursive: bool = False) -> dict:
         init_user_purview(user_group_id)
         return get_user_purview_from_mysql(user_group_id, True)
 
-    if recursive and purview_user is None:
-        return {}
-
     purview = {
         "user": purview_user.get_dict(),
         "room": purview_room.get_dict(),
