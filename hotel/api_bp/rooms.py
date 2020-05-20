@@ -6,7 +6,7 @@ from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 
 from hotel.api_error import APIError
-from hotel.common import get_request_body, response_json
+from hotel.common import get_request_body, push_log, response_json
 from hotel.extensions import db
 from hotel.models import Room, RoomType
 from hotel.token import login_purview_required
@@ -71,6 +71,7 @@ class RoomsAPI(MethodView):
         except IntegrityError:
             raise APIError("房间重复")
 
+        push_log(f"添加房间 {room_id}")
         return response_json(msg=f"{room_id} 添加成功")
 
 
@@ -95,6 +96,7 @@ class RoomAPI(MethodView):
         db.session.commit()
 
         message = "特价房" if is_discounted else "非特价房"
+        push_log(f"修改房间 {room_id} 为{message}")
         return response_json(msg=f"{room_id} 修改为{message}")
 
     @login_purview_required("room", "update")
@@ -117,6 +119,7 @@ class RoomAPI(MethodView):
         db.session.add(room)
         db.session.commit()
 
+        push_log(f"修改房间 {room_id}")
         return response_json(msg=f"{room_id} 修改成功")
 
     @login_purview_required("room", "del")
@@ -133,6 +136,7 @@ class RoomAPI(MethodView):
         db.session.delete(room)
         db.session.commit()
 
+        push_log(f"删除房间 {room_id}")
         return response_json(msg=f"{room_id} 删除成功")
 
 

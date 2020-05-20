@@ -3,7 +3,7 @@ from flask.views import MethodView
 from sqlalchemy.exc import IntegrityError
 
 from hotel.api_error import APIError
-from hotel.common import get_request_body, response_json
+from hotel.common import get_request_body, push_log, response_json
 from hotel.extensions import db
 from hotel.models import UserGroup
 from hotel.purview import get_user_purview_from_cache, get_user_purview_from_mysql
@@ -89,6 +89,7 @@ class GroupsUsersAPI(MethodView):
         except IntegrityError:
             raise APIError("用户组重复")
 
+        push_log(f"添加用户组 {user_group.group_name}")
         return response_json(msg=f"{group_name} 添加成功")
 
 
@@ -113,6 +114,7 @@ class GroupsUserAPI(MethodView):
         db.session.add(user_group)
         db.session.commit()
 
+        push_log(f"修改用户组 {user_group.group_name}")
         return response_json(msg=f"{group_name} 修改成功")
 
     def delete(self, user_group_id) -> response_json:
@@ -127,6 +129,8 @@ class GroupsUserAPI(MethodView):
 
         db.session.delete(user_group)
         db.session.commit()
+
+        push_log(f"删除用户组 {user_group.group_name}")
         return response_json(msg=f"{user_group.group_name} 删除成功")
 
 

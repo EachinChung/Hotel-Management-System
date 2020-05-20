@@ -38,7 +38,8 @@ def _access_token(user) -> str:
     data = {
         "name": user.name,
         "phone": user.phone,
-        "weight": user.user_group.weight
+        "weight": user.user_group.weight,
+        "user_group": user.user_group.group_name
     }
 
     Redis.hmset(sign, data)

@@ -3,7 +3,7 @@ from flask.views import MethodView
 from sqlalchemy import or_
 
 from hotel.api_error import APIError
-from hotel.common import get_request_body, response_json
+from hotel.common import get_request_body, push_log, response_json
 from hotel.extensions import db
 from hotel.models import User, UserGroup
 from hotel.my_redis import Redis
@@ -72,6 +72,7 @@ class UsersAPI(MethodView):
         db.session.add(user)
         db.session.commit()
 
+        push_log(f"添加用户 {user.name}")
         return response_json(msg=f"{name} 添加成功")
 
 
@@ -98,6 +99,7 @@ class UserAPI(MethodView):
         Redis.fuzzy_delete(phone)
 
         message = "激活状态" if is_activation else "非激活状态"
+        push_log(f"修改用户 {user.name} 为{message}")
         return response_json(msg=f"{user.name} 修改为{message}")
 
     @login_purview_required("user", "update")
@@ -129,6 +131,7 @@ class UserAPI(MethodView):
         db.session.commit()
         Redis.fuzzy_delete(phone)
 
+        push_log(f"修改用户 {user.name}")
         return response_json(msg=f"{name} 修改成功")
 
     @login_purview_required("user", "del")
@@ -152,6 +155,7 @@ class UserAPI(MethodView):
         db.session.commit()
         Redis.fuzzy_delete(phone)
 
+        push_log(f"删除用户 {user.name}")
         return response_json(msg=f"{user.name} 删除成功")
 
 

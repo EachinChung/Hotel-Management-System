@@ -5,7 +5,7 @@ from flask.views import MethodView
 from sqlalchemy.exc import IntegrityError
 
 from hotel.api_error import APIError
-from hotel.common import get_request_body, response_json
+from hotel.common import get_request_body, push_log, response_json
 from hotel.extensions import db
 from hotel.models import RoomType
 from hotel.token import login_purview_required, login_required
@@ -85,6 +85,7 @@ class RoomsTypesAPI(MethodView):
         except IntegrityError:
             raise APIError("房间类型重复")
 
+        push_log(f"添加房型 {room_type.room_type}")
         return response_json({}, msg=f"{data[0]} 添加成功")
 
 
@@ -114,6 +115,7 @@ class RoomsTypeAPI(MethodView):
         except IntegrityError:
             raise APIError("房间类型重复")
 
+        push_log(f"修改房型 {room_type.room_type}")
         return response_json(msg=f"{data[0]} 修改成功")
 
     @login_purview_required("room_type", "del")
@@ -128,6 +130,8 @@ class RoomsTypeAPI(MethodView):
 
         db.session.delete(room_type)
         db.session.commit()
+
+        push_log(f"删除房型 {room_type.room_type}")
         return response_json({}, msg=f"{room_type.room_type} 删除成功")
 
 

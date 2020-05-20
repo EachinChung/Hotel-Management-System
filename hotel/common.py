@@ -1,8 +1,12 @@
+from datetime import datetime
 from hashlib import md5
 
-from flask import jsonify, request
+from flask import g, jsonify, request
+from sqlalchemy import func, insert
 
 from hotel.api_error import APIError
+from hotel.extensions import db
+from hotel.models import Log
 
 
 def safe_md5(s: str) -> str:
@@ -16,6 +20,22 @@ def safe_md5(s: str) -> str:
         s = bytes(s, encoding='utf-8')
 
     return md5(s).hexdigest().upper()
+
+
+def push_log(message) -> None:
+    """
+    推送普通日志
+    :param message:
+    :return:
+    """
+    db.session.execute(insert(Log, {
+        "ip": func.inet_aton(request.remote_addr),
+        "user": g.session["name"],
+        "user_group": g.session["user_group"],
+        "message": message,
+        "datetime": datetime.today()
+    }))
+    db.session.commit()
 
 
 def get_request_body(*keys) -> list:
