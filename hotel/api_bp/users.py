@@ -159,5 +159,5 @@ class UserAPI(MethodView):
         return response_json(msg=f"{user.name} 删除成功")
 
 
-users_bp.add_url_rule("/", view_func=UsersAPI.as_view("users"), methods=("GET", "POST"))
-users_bp.add_url_rule("/<int:phone>", view_func=UserAPI.as_view("user"), methods=("PATCH", "PUT", "DELETE"))
+users_bp.add_url_rule(rule="", view_func=UsersAPI.as_view("users"), methods=("GET", "POST"))
+users_bp.add_url_rule(rule="/<int:phone>", view_func=UserAPI.as_view("user"), methods=("PATCH", "PUT", "DELETE"))

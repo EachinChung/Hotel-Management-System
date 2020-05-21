@@ -140,5 +140,5 @@ class RoomAPI(MethodView):
         return response_json(msg=f"{room_id} 删除成功")
 
 
-rooms_bp.add_url_rule("/", view_func=RoomsAPI.as_view("rooms"), methods=("GET", "POST"))
-rooms_bp.add_url_rule("/<int:room_id>", view_func=RoomAPI.as_view("room"), methods=("PATCH", "PUT", "DELETE"))
+rooms_bp.add_url_rule(rule="", view_func=RoomsAPI.as_view("rooms"), methods=("GET", "POST"))
+rooms_bp.add_url_rule(rule="/<int:room_id>", view_func=RoomAPI.as_view("room"), methods=("PATCH", "PUT", "DELETE"))

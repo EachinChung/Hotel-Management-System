@@ -18,7 +18,7 @@ class RoomTestCase(BaseTestCase):
         return self.delete(f"/rooms{api}")
 
     def api_room_add(self, json):
-        return self.base_post("/", json)
+        return self.base_post("", json)
 
     def api_room_del(self, room_id):
         return self.base_delete(f"/{room_id}")
@@ -27,7 +27,7 @@ class RoomTestCase(BaseTestCase):
         return self.base_put(f"/{room_id}", json)
 
     def api_room_list(self, json):
-        return self.base_get("/", json)
+        return self.base_get("", json)
 
     def api_set_discounted(self, room_id, json):
         return self.base_patch(f"/{room_id}", json)

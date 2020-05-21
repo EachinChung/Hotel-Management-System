@@ -23,7 +23,7 @@ class UserGroupTestCase(BaseTestCase):
         return self.base_get("/ids")
 
     def api_add_user_group(self, json):
-        return self.base_post("/", json)
+        return self.base_post("", json)
 
     def api_update_user_group(self, user_group_id, json):
         return self.base_put(f"/{user_group_id}", json)
@@ -32,7 +32,7 @@ class UserGroupTestCase(BaseTestCase):
         return self.base_delete(f"/{user_group_id}")
 
     def api_user_group_list(self, json):
-        return self.base_get("/", json)
+        return self.base_get("", json)
 
     def get_user_group_list(self):
         return self.api_user_group_list(dict(page=1, per_page=100, query=""))
@@ -65,7 +65,7 @@ class UserGroupTestCase(BaseTestCase):
         self.assertEqual("测试呀 删除成功", response["msg"])
 
     def test_user_group_err_not_purview(self):
-        self.post("/users/", {
+        self.post("/users", {
             "phone": "11111119999",
             "name": "测试用户",
             "user_group_id": 4
@@ -73,7 +73,7 @@ class UserGroupTestCase(BaseTestCase):
         db.session.remove()
         test_token = self.login("11111119999", "11111119999").get_json()["data"]["token"]["accessToken"]
 
-        response = self.client.post("/users/groups/", json={
+        response = self.client.post("/users/groups", json={
             "group_name": "测试用户组",
             "description": "",
             "weight": 100

@@ -134,5 +134,5 @@ class GroupsUserAPI(MethodView):
         return response_json(msg=f"{user_group.group_name} 删除成功")
 
 
-users_groups_bp.add_url_rule("/", view_func=GroupsUsersAPI.as_view("rooms"), methods=("GET", "POST"))
-users_groups_bp.add_url_rule("/<int:user_group_id>", view_func=GroupsUserAPI.as_view("room"), methods=("PUT", "DELETE"))
+users_groups_bp.add_url_rule(rule="", view_func=GroupsUsersAPI.as_view("rooms"), methods=("GET", "POST"))
+users_groups_bp.add_url_rule(rule="/<int:user_group_id>", view_func=GroupsUserAPI.as_view("room"), methods=("PUT", "DELETE"))

@@ -8,7 +8,7 @@ create table log
     ip         int unsigned not null,
     user       varchar(64)  not null,
     user_group varchar(64)  not null,
-    message    varchar(64)  not null,
+    message    varchar(254)  not null,
     datetime   datetime     not null
 );
 

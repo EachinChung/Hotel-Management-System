@@ -45,4 +45,4 @@ class OauthAPI(MethodView):
         return response_json(create_token(user))
 
 
-oauth_bp.add_url_rule("/", view_func=OauthAPI.as_view("oauth"), methods=("POST", "PATCH"))
+oauth_bp.add_url_rule(rule="", view_func=OauthAPI.as_view("oauth"), methods=("POST", "PATCH"))

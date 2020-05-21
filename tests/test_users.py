@@ -19,7 +19,7 @@ class UserTestCase(BaseTestCase):
         return self.delete(f"/users{api}")
 
     def api_add_user(self, json):
-        return self.base_post("/", json)
+        return self.base_post("", json)
 
     def api_update_user(self, phone, json):
         return self.base_put(f"/{phone}", json)
@@ -28,7 +28,7 @@ class UserTestCase(BaseTestCase):
         return self.base_delete(f"/{phone}")
 
     def api_user_list(self, json):
-        return self.base_get(f"/", json)
+        return self.base_get(f"", json)
 
     def api_set_activation(self, phone, json):
         return self.base_patch(f"/{phone}", json)

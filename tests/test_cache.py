@@ -12,7 +12,7 @@ class CacheTestCase(BaseTestCase):
         """
         # 登录管理员用户，添加用户「测试删除缓存」
         token = self.login().get_json()["data"]["token"]["accessToken"]
-        self.client.post("/users/", json={
+        self.client.post("/users", json={
             "phone": "13309999999",
             "name": "测试删除缓存",
             "user_group_id": 2
@@ -37,14 +37,14 @@ class CacheTestCase(BaseTestCase):
         }).get_json()
 
         # 测试被修改用户正常获取新的访问令牌
-        new_token = self.client.patch("/oauth/", headers={
+        new_token = self.client.patch("/oauth", headers={
             "Authorization": f"bearer {test_refresh_token}"
         }).get_json()
 
         return re_register, new_token
 
     def test_cache_after_token_expired(self):
-        response = self.client.patch("/oauth/", headers={
+        response = self.client.patch("/oauth", headers={
             "Authorization": f"bearer {self.phone}-6DDEB6569FFD1E6EAF42FDA1BF349205"
         }).get_json()
         self.assertEqual(401, response["err"])
@@ -52,7 +52,7 @@ class CacheTestCase(BaseTestCase):
     def test_cache_after_purview_update(self):
         # 登录缓存权限
         token = self.login().get_json()["data"]["token"]["accessToken"]
-        self.client.get("/users/", json=dict(page=1, per_page=1, query=""), headers={
+        self.client.get("/users", json=dict(page=1, per_page=1, query=""), headers={
             "Authorization": f"bearer {token}"
         }).get_json()
         self.assertIsNotNone(Redis.get(f"{self.phone}-purview"))
@@ -62,7 +62,7 @@ class CacheTestCase(BaseTestCase):
         self.assertIsNone(Redis.get(f"{self.phone}-purview"))
 
         # 检测是否自动更新缓存
-        response = self.client.get("/users/", json=dict(page=1, per_page=1, query=""), headers={
+        response = self.client.get("/users", json=dict(page=1, per_page=1, query=""), headers={
             "Authorization": f"bearer {token}"
         }).get_json()
 

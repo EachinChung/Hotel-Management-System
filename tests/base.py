@@ -27,7 +27,7 @@ class BaseTestCase(TestCase):
         if phone is None: phone = self.phone
         if password is None: password = self.password
         return self.client.post(
-            "/oauth/",
+            "/oauth",
             json={
                 "phone": phone,
                 "password": password

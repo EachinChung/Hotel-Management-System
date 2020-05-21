@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from hotel.api_error import APIError
 from hotel.common import get_request_body, push_log, response_json
 from hotel.extensions import db
-from hotel.models import RoomType
+from hotel.models import RoomType, RoomTypePrice
 from hotel.token import login_purview_required, login_required
 
 rooms_types_bp = Blueprint("rooms_types", __name__)
@@ -86,12 +86,12 @@ class RoomsTypesAPI(MethodView):
             raise APIError("房间类型重复")
 
         push_log(f"添加房型 {room_type.room_type}")
-        return response_json({}, msg=f"{data[0]} 添加成功")
+        return response_json(msg=f"{data[0]} 添加成功")
 
 
 class RoomsTypeAPI(MethodView):
     @login_purview_required("room_type", "update")
-    def put(self, room_type_id):
+    def put(self, room_type_id: int):
         """
         修改房型
         :return:
@@ -119,7 +119,7 @@ class RoomsTypeAPI(MethodView):
         return response_json(msg=f"{data[0]} 修改成功")
 
     @login_purview_required("room_type", "del")
-    def delete(self, room_type_id):
+    def delete(self, room_type_id: int):
         """
         删除房型
         :return:
@@ -132,8 +132,115 @@ class RoomsTypeAPI(MethodView):
         db.session.commit()
 
         push_log(f"删除房型 {room_type.room_type}")
-        return response_json({}, msg=f"{room_type.room_type} 删除成功")
+        return response_json(msg=f"{room_type.room_type} 删除成功")
 
 
-rooms_types_bp.add_url_rule("/", view_func=RoomsTypesAPI.as_view("rooms"), methods=("GET", "POST"))
-rooms_types_bp.add_url_rule("/<int:room_type_id>", view_func=RoomsTypeAPI.as_view("room"), methods=("PUT", "DELETE"))
+class RoomsTypesPricesAPI(MethodView):
+    @login_required
+    def get(self, room_type_id: int):
+        """
+        获取房型价格
+        :param room_type_id:
+        :return:
+        """
+        room_type_price = RoomTypePrice.query.filter_by(room_type_id=room_type_id).all()
+
+        def _decode(item):  # 把数据库模型解析为 json
+            return dict(
+                id=item.id,
+                room_type_id=item.room_type_id,
+                customer_type=item.customer_type,
+                price=item.price,
+                update_datetime=item.update_datetime,
+                operator=item.operator
+            )
+
+        items = list(map(_decode, room_type_price))
+        return response_json(dict(items=items))
+
+    @login_purview_required("room_type", "set_price")
+    def post(self, room_type_id: int):
+        """
+        新增房型价格
+        :param room_type_id:
+        :return:
+        """
+        customer_type, price = get_request_body("customer_type", "price")
+
+        room_type_price = RoomTypePrice(
+            room_type_id=room_type_id,
+            customer_type=customer_type,
+            price=price,
+            update_datetime=datetime.today(),
+            operator=g.session["name"]
+        )
+
+        db.session.add(room_type_price)
+        db.session.commit()
+
+        push_log(f"房型{room_type_id}，添加价格")
+        return response_json({}, msg=f"{customer_type} 添加成功")
+
+
+class RoomsTypesPriceAPI(MethodView):
+    @login_purview_required("room_type", "set_price")
+    def put(self, room_type_id: int, price_id: int):
+        customer_type, price = get_request_body("customer_type", "price")
+
+        room_type_price = RoomTypePrice.query.get(price_id)
+        if room_type_price is None: raise APIError("该价格类型不存在")
+        if room_type_price.room_type_id != room_type_id: raise APIError("提交信息不合法")
+
+        room_type_price.customer_type = customer_type
+        room_type_price.price = price
+        room_type_price.update_datetime = datetime.today()
+        room_type_price.operator = g.session["name"]
+
+        db.session.add(room_type_price)
+        db.session.commit()
+
+        push_log(f"房型{room_type_id}，修改价格")
+        return response_json(msg=f"{customer_type} 修改成功")
+
+    @login_purview_required("room_type", "set_price")
+    def delete(self, room_type_id: int, price_id: int):
+        """
+        删除房型价格
+        :param room_type_id:
+        :param price_id:
+        :return:
+        """
+        room_type_price = RoomTypePrice.query.get(price_id)
+        if room_type_price is None: raise APIError("该价格类型不存在")
+        if room_type_price.room_type_id != room_type_id: raise APIError("提交信息不合法")
+
+        db.session.delete(room_type_price)
+        db.session.commit()
+
+        push_log(f"删除房型{room_type_id}的{room_type_price.customer_type}价格")
+        return response_json(msg=f"{room_type_price.customer_type} 删除成功")
+
+
+rooms_types_bp.add_url_rule(
+    rule="",
+    view_func=RoomsTypesAPI.as_view("rooms"),
+    methods=("GET", "POST")
+)
+
+rooms_types_bp.add_url_rule(
+    rule="/<int:room_type_id>",
+    view_func=RoomsTypeAPI.as_view("room"),
+    methods=("PUT", "DELETE")
+)
+
+rooms_types_bp.add_url_rule(
+    rule="/<int:room_type_id>/prices",
+    view_func=RoomsTypesPricesAPI.as_view("rooms_prices"),
+    methods=("GET", "POST")
+)
+
+rooms_types_bp.add_url_rule(
+    rule="/<int:room_type_id>/prices/<int:price_id>",
+    view_func=RoomsTypesPriceAPI.as_view("rooms_price"),
+    methods=("PUT", "DELETE")
+)
