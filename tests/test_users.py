@@ -34,6 +34,8 @@ class UserTestCase(BaseTestCase):
         return self.base_patch(f"/{phone}", json)
 
     def test_user_base(self):
+        # 新建一个用户
+        self.api_del_user(15811119999)
         response = self.api_add_user({
             "phone": "15811119999",
             "name": "测试用户",
@@ -41,25 +43,50 @@ class UserTestCase(BaseTestCase):
         })
         self.assertEqual("测试用户 添加成功", response["msg"])
 
+        # 获取用户列表
         response = self.api_user_list(dict(page=1, per_page=1, query=""))
         self.assertEqual("ok", response["msg"])
 
+        # 修改用户
         response = self.api_update_user(15811119999, {
             "name": "测试员",
             "user_group_id": 2
         })
         self.assertEqual("测试员 修改成功", response["msg"])
 
+        # 尝试登录新建用户
+        test_token = self.login("15811119999", "15811119999")
+        self.assertIn("accessToken", test_token.get_data(as_text=True))
+
+        # 冻结新建用户
         response = self.api_set_activation(15811119999, {
             "is_activation": False
         })
         self.assertEqual("测试员 修改为非激活状态", response["msg"])
 
+        response = self.client.get("/rooms/types/ids", headers={
+            "Authorization": f'bearer {test_token.get_json()["data"]["token"]["accessToken"]}'
+        }).get_json()
+        self.assertEqual(401, response["err"])
+
+        response = self.client.patch("/oauth", headers={
+            "Authorization": f'bearer {test_token.get_json()["data"]["token"]["refreshToken"]}'
+        }).get_json()
+        self.assertEqual("该账号暂为冻结状态，请联系管理员", response["msg"])
+
+        response = self.login("15811119999", "15811119999").get_json()
+        self.assertEqual("该账号暂为冻结状态，请联系管理员", response["msg"])
+
+        # 解封新建用户
         response = self.api_set_activation(15811119999, {
             "is_activation": True
         })
         self.assertEqual("测试员 修改为激活状态", response["msg"])
 
+        test_token = self.login("15811119999", "15811119999")
+        self.assertIn("accessToken", test_token.get_data(as_text=True))
+
+        # 删除新建用户
         response = self.api_del_user(15811119999)
         self.assertEqual("测试员 删除成功", response["msg"])
 
