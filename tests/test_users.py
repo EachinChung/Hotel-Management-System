@@ -33,6 +33,13 @@ class UserTestCase(BaseTestCase):
     def api_set_activation(self, phone, json):
         return self.base_patch(f"/{phone}", json)
 
+    def api_purview(self):
+        return self.base_get("/purview")
+
+    def test_purview(self):
+        response = self.api_purview()
+        self.assertEqual("ok", response["msg"])
+
     def test_user_base(self):
         # 新建一个用户
         self.api_del_user(15811119999)
@@ -62,7 +69,7 @@ class UserTestCase(BaseTestCase):
         response = self.api_set_activation(15811119999, {
             "is_activation": False
         })
-        self.assertEqual("测试员 修改为非激活状态", response["msg"])
+        self.assertEqual("测试员 已被冻结", response["msg"])
 
         response = self.client.get("/rooms/types/ids", headers={
             "Authorization": f'bearer {test_token.get_json()["data"]["token"]["accessToken"]}'

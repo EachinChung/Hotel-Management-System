@@ -2,14 +2,27 @@ create database hotel;
 
 use hotel;
 
+create table login_log
+(
+    id         int unsigned not null primary key auto_increment,
+    ip         int unsigned not null,
+    user       varchar(64)  not null,
+    user_phone char(11)     not null,
+    user_group varchar(64)  not null,
+    datetime   datetime     not null,
+    index user_index (user),
+    index user_phone_index (user_phone)
+);
+
 create table log
 (
     id         int unsigned not null primary key auto_increment,
     ip         int unsigned not null,
     user       varchar(64)  not null,
     user_group varchar(64)  not null,
-    message    varchar(254)  not null,
-    datetime   datetime     not null
+    message    varchar(254) not null,
+    datetime   datetime     not null,
+    index user_index (user)
 );
 
 create table user_group

@@ -6,21 +6,10 @@ from hotel.api_error import APIError
 from hotel.common import get_request_body, push_log, response_json
 from hotel.extensions import db
 from hotel.models import UserGroup
-from hotel.purview import get_user_purview_from_cache, get_user_purview_from_mysql
+from hotel.purview import get_user_purview_from_mysql
 from hotel.token import login_required, login_sudo_required
 
 users_groups_bp = Blueprint("groups_users", __name__)
-
-
-@users_groups_bp.route("/purview")
-@login_required  # 所有用户都要获取权限，所以仅需鉴权是否登录
-def purview_bp() -> response_json:
-    """
-    获取权限
-    :return:
-    """
-    purview = get_user_purview_from_cache()
-    return response_json(dict(purview=purview, weight=int(g.session["weight"])))
 
 
 @users_groups_bp.route("/ids")
@@ -135,4 +124,5 @@ class GroupsUserAPI(MethodView):
 
 
 users_groups_bp.add_url_rule(rule="", view_func=GroupsUsersAPI.as_view("rooms"), methods=("GET", "POST"))
-users_groups_bp.add_url_rule(rule="/<int:user_group_id>", view_func=GroupsUserAPI.as_view("room"), methods=("PUT", "DELETE"))
+users_groups_bp.add_url_rule(rule="/<int:user_group_id>", view_func=GroupsUserAPI.as_view("room"),
+                             methods=("PUT", "DELETE"))

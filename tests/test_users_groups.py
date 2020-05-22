@@ -16,9 +16,6 @@ class UserGroupTestCase(BaseTestCase):
     def base_delete(self, api):
         return self.delete(f"/users/groups{api}")
 
-    def api_purview(self):
-        return self.base_get("/purview")
-
     def api_group_id_list(self):
         return self.base_get("/ids")
 
@@ -37,9 +34,7 @@ class UserGroupTestCase(BaseTestCase):
     def get_user_group_list(self):
         return self.api_user_group_list(dict(page=1, per_page=100, query=""))
 
-    def test_purview(self):
-        response = self.api_purview()
-        self.assertEqual("ok", response["msg"])
+
 
     def test_group_id_list(self):
         response = self.api_group_id_list()

@@ -32,7 +32,7 @@ class CacheTestCase(BaseTestCase):
         :return:
         """
         # 测试被修改的用户要重新获取token
-        re_register = self.client.get("/users/groups/purview", headers={
+        re_register = self.client.get("/users/purview", headers={
             "Authorization": f"bearer {test_token}"
         }).get_json()
 
@@ -73,7 +73,7 @@ class CacheTestCase(BaseTestCase):
         token, test_token, test_refresh_token = self.add_test_user()
 
         # 账户权重为1
-        response = self.client.get("/users/groups/purview", headers={
+        response = self.client.get("/users/purview", headers={
             "Authorization": f"bearer {test_token}"
         }).get_json()
         self.assertEqual(1, response["data"]["weight"])
@@ -91,7 +91,7 @@ class CacheTestCase(BaseTestCase):
         self.assertEqual("ok", new_token["msg"])
 
         # 账户权重为2
-        response = self.client.get("/users/groups/purview", headers={
+        response = self.client.get("/users/purview", headers={
             "Authorization": f"bearer {new_token['data']['accessToken']}"
         }).get_json()
         self.assertEqual(2, response["data"]["weight"])

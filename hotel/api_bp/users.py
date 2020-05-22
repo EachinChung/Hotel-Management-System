@@ -7,9 +7,21 @@ from hotel.common import get_request_body, push_log, response_json
 from hotel.extensions import db
 from hotel.models import User, UserGroup
 from hotel.my_redis import Redis
-from hotel.token import login_purview_required
+from hotel.purview import get_user_purview_from_cache
+from hotel.token import login_purview_required, login_required
 
 users_bp = Blueprint("users", __name__)
+
+
+@users_bp.route("/purview")
+@login_required  # 所有用户都要获取权限，所以仅需鉴权是否登录
+def purview_bp() -> response_json:
+    """
+    获取权限
+    :return:
+    """
+    purview = get_user_purview_from_cache()
+    return response_json(dict(purview=purview, weight=int(g.session["weight"])))
 
 
 class UsersAPI(MethodView):
@@ -98,9 +110,12 @@ class UserAPI(MethodView):
         db.session.commit()
         Redis.fuzzy_delete(phone)
 
-        message = "激活状态" if is_activation else "非激活状态"
-        push_log(f"修改用户 {user.name} 为{message}")
-        return response_json(msg=f"{user.name} 修改为{message}")
+        if is_activation:
+            push_log(f"修改用户 {user.name} 为激活状态")
+            return response_json(dict(is_activation=True), msg=f"{user.name} 修改为激活状态")
+        else:
+            push_log(f"用户 {user.name} 已被冻结")
+            return response_json(dict(is_activation=False), msg=f"{user.name} 已被冻结")
 
     @login_purview_required("user", "update")
     def put(self, phone) -> response_json:

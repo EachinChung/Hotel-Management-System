@@ -151,7 +151,7 @@ class RoomsTypesPricesAPI(MethodView):
                 room_type_id=item.room_type_id,
                 customer_type=item.customer_type,
                 price=item.price,
-                update_datetime=item.update_datetime,
+                update_datetime=item.update_datetime.strftime("%Y-%m-%d %H:%M:%S"),
                 operator=item.operator
             )
 
