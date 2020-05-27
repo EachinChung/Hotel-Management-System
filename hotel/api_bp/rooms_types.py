@@ -165,12 +165,13 @@ class RoomsTypesPricesAPI(MethodView):
         :param room_type_id:
         :return:
         """
-        customer_type, price = get_request_body("customer_type", "price")
+        customer_type, price, check_out_time = get_request_body("customer_type", "price", "check_out_time")
 
         room_type_price = RoomTypePrice(
             room_type_id=room_type_id,
             customer_type=customer_type,
             price=price,
+            check_out_time=check_out_time,
             update_datetime=datetime.today(),
             operator=g.session["name"]
         )
@@ -185,7 +186,7 @@ class RoomsTypesPricesAPI(MethodView):
 class RoomsTypesPriceAPI(MethodView):
     @login_purview_required("room_type", "set_price")
     def put(self, room_type_id: int, price_id: int):
-        customer_type, price = get_request_body("customer_type", "price")
+        customer_type, price, check_out_time = get_request_body("customer_type", "price", "check_out_time")
 
         room_type_price = RoomTypePrice.query.get(price_id)
         if room_type_price is None: raise APIError("该价格类型不存在")
@@ -193,6 +194,7 @@ class RoomsTypesPriceAPI(MethodView):
 
         room_type_price.customer_type = customer_type
         room_type_price.price = price
+        room_type_price.check_out_time = check_out_time
         room_type_price.update_datetime = datetime.today()
         room_type_price.operator = g.session["name"]
 

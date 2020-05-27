@@ -106,17 +106,23 @@ class RoomTypeTestCase(BaseTestCase):
         self.assertIn("该房型不存在", response["msg"])
 
     def test_price(self):
-        response = self.api_add_price(1, dict(customer_type="会员", price=12.1))
+        response = self.api_add_price(1, dict(customer_type="会员", price=12.1, check_out_time="12:00"))
         self.assertEqual("会员 添加成功", response["msg"])
 
         price_id = self.api_get_price(1)
         self.assertEqual("ok", price_id["msg"])
 
-        response = self.api_put_price(999099, price_id["data"]["items"][0]["id"], dict(customer_type="会员", price=12.1))
+        response = self.api_put_price(999099, price_id["data"]["items"][0]["id"], dict(
+            customer_type="会员", price=12.1, check_out_time="12:00"
+        ))
         self.assertEqual("提交信息不合法", response["msg"])
-        response = self.api_put_price(999099, 999099, dict(customer_type="会员", price=12.1))
+        response = self.api_put_price(999099, 999099, dict(
+            customer_type="会员", price=12.1, check_out_time="12:00"
+        ))
         self.assertEqual("该价格类型不存在", response["msg"])
-        response = self.api_put_price(1, price_id["data"]["items"][0]["id"], dict(customer_type="会员", price=121.1))
+        response = self.api_put_price(1, price_id["data"]["items"][0]["id"], dict(
+            customer_type="会员", price=121.1, check_out_time="12:00"
+        ))
         self.assertEqual("会员 修改成功", response["msg"])
 
         response = self.api_del_price(999099, price_id["data"]["items"][0]["id"])

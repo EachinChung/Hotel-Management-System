@@ -3,6 +3,18 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from hotel.extensions import db
 
 
+class LoginLog(db.Model):
+    """
+    登录日志表
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    ip = db.Column(db.Integer)
+    user = db.Column(db.String, index=True)
+    user_phone = db.Column(db.String, index=True)
+    user_group = db.Column(db.String)
+    datetime = db.Column(db.DateTime)
+
+
 class Log(db.Model):
     """
     日志表
@@ -124,6 +136,7 @@ class RoomTypePrice(db.Model):
     room_type_id = db.Column(db.Integer, db.ForeignKey("room_type.id"))
     customer_type = db.Column(db.String)
     price = db.Column(db.Float)
+    check_out_time = db.Column(db.Time)
     update_datetime = db.Column(db.DateTime)
     operator = db.Column(db.String)
 

@@ -79,7 +79,7 @@ create table user
 create table room_type
 (
     id               int unsigned not null primary key auto_increment,
-    room_type        varchar(254) not null unique,
+    room_type        varchar(64)  not null unique,
     number_of_beds   tinyint      not null,
     number_of_people tinyint      not null,
     price_tag        float        not null,
@@ -93,6 +93,7 @@ create table room_type_price
     room_type_id    int unsigned not null,
     customer_type   varchar(64)  not null,
     price           float        not null,
+    check_out_time  time         not null,
     update_datetime datetime     not null,
     operator        varchar(64)  not null,
     foreign key (room_type_id) references room_type (id) on delete cascade on update cascade
@@ -110,28 +111,33 @@ create table room
     foreign key (room_type_id) references room_type (id) on delete cascade on update cascade
 );
 
+create table room_calendar
+(
+    id           int unsigned not null primary key auto_increment,
+    booking_id   char(22),
+    check_in_id  char(22),
+    room_id      int,
+    room_type_id int unsigned not null,
+    date         date         not null,
+    index calendar_data (date),
+    index booking (booking_id),
+    index check_in (check_in_id)
+);
+
 create table booking_order
 (
-    id             char(22)    not null primary key,
-    rooms          json        not null,
-    arrival_time   datetime    not null,
-    check_out_time datetime    not null,
-    phone          varchar(32) not null,
-    booker         varchar(64) not null,
-    remark         text        null,
-    operator_phone char(11)    not null
+    id             char(22)     not null primary key,
+    arrival_date   date         not null,
+    check_out_date date         not null,
+    phone          varchar(32)  not null,
+    booker         varchar(64)  not null,
+    remark         varchar(200) null,
+    operator_phone char(11)     not null
 );
 
 create table group_order
 (
-    id             char(22)    not null primary key,
-    rooms          json        not null,
-    arrival_time   datetime    not null,
-    check_out_time datetime    not null,
-    phone          varchar(32) not null,
-    booker         varchar(64) not null,
-    remark         text        null,
-    operator_phone char(11)    not null
+    id char(22) not null primary key
 );
 
 create table check_in_order
