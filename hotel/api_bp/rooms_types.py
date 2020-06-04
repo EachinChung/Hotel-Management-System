@@ -34,7 +34,7 @@ class RoomsTypesAPI(MethodView):
         :return:
         """
         page = request.args.get('page', default=1, type=int)
-        per_page = request.args.get('per_page', default=2, type=int)
+        per_page = request.args.get('per_page', default=20, type=int)
         query = request.args.get("query", default="")
 
         def _decode(item):
@@ -151,6 +151,7 @@ class RoomsTypesPricesAPI(MethodView):
                 room_type_id=item.room_type_id,
                 customer_type=item.customer_type,
                 price=item.price,
+                check_out_time=item.check_out_time.strftime("%H:%M"),
                 update_datetime=item.update_datetime.strftime("%Y-%m-%d %H:%M:%S"),
                 operator=item.operator
             )

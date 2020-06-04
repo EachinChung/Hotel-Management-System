@@ -32,7 +32,7 @@ class UsersAPI(MethodView):
         :return:
         """
         page = request.args.get("page", default=1, type=int)
-        per_page = request.args.get("per_page", default=2, type=int)
+        per_page = request.args.get("per_page", default=20, type=int)
         query = request.args.get("query", default="")
 
         def _decode(item):  # 把数据库模型解析为 json

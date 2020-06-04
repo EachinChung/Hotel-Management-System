@@ -1,9 +1,13 @@
-from flask import Blueprint
+from datetime import datetime
+
+from flask import Blueprint, request
 from flask.views import MethodView
+from sqlalchemy import func, insert
 
 from hotel.api_error import APIError
 from hotel.common import get_request_body, response_json
-from hotel.models import User
+from hotel.extensions import db
+from hotel.models import LoginLog, User
 from hotel.token import create_token, get_token, validate_token
 
 oauth_bp = Blueprint("oauth", __name__)
@@ -11,7 +15,8 @@ oauth_bp = Blueprint("oauth", __name__)
 
 class OauthAPI(MethodView):
 
-    def post(self) -> response_json:
+    @staticmethod
+    def post() -> response_json:
         """
         登陆接口，获取令牌
         return: json
@@ -31,9 +36,19 @@ class OauthAPI(MethodView):
             "user_group": user.user_group.group_name
         }
 
+        db.session.execute(insert(LoginLog, {
+            "ip": func.inet_aton(request.remote_addr),
+            "user": user.name,
+            "user_phone": phone,
+            "user_group": user.user_group.group_name,
+            "datetime": datetime.today()
+        }))
+        db.session.commit()
+
         return response_json(response_data)
 
-    def patch(self) -> response_json:
+    @staticmethod
+    def patch() -> response_json:
         """
         刷新令牌
         :return: json

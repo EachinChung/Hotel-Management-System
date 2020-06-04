@@ -132,7 +132,8 @@ create table booking_order
     phone          varchar(32)  not null,
     booker         varchar(64)  not null,
     remark         varchar(200) null,
-    operator_phone char(11)     not null
+    operator_phone char(11)     not null,
+    status         tinyint      not null
 );
 
 create table group_order

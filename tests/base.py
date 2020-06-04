@@ -5,6 +5,7 @@ from warnings import simplefilter
 from dotenv import find_dotenv, load_dotenv
 
 from hotel import create_app
+from hotel.my_redis import Redis
 
 load_dotenv(find_dotenv())
 
@@ -20,7 +21,15 @@ class BaseTestCase(TestCase):
         self.phone = "13711164450"
         self.password = "qwerty"
 
+        Redis.hmset("test", {
+            "name": "钟予乾",
+            "phone": "13711164450",
+            "weight": 0,
+            "user_group": "超级管理员"
+        })
+
     def tearDown(self):
+        Redis.delete("test")
         self.app_context.pop()
 
     def login(self, phone=None, password=None):
@@ -36,31 +45,26 @@ class BaseTestCase(TestCase):
 
     def get(self, uri, params=None):
         if params is not None: uri += f"?{urlencode(params)}"
-        token = self.login().get_json()["data"]["token"]["accessToken"]
         return self.client.get(uri, headers={
-            "Authorization": f"bearer {token}"
+            "Authorization": f"bearer test"
         }).get_json()
 
     def post(self, uri, json):
-        token = self.login().get_json()["data"]["token"]["accessToken"]
         return self.client.post(uri, json=json, headers={
-            "Authorization": f"bearer {token}"
+            "Authorization": f"bearer test"
         }).get_json()
 
     def put(self, uri, json):
-        token = self.login().get_json()["data"]["token"]["accessToken"]
         return self.client.put(uri, json=json, headers={
-            "Authorization": f"bearer {token}"
+            "Authorization": f"bearer test"
         }).get_json()
 
     def patch(self, uri, json):
-        token = self.login().get_json()["data"]["token"]["accessToken"]
         return self.client.patch(uri, json=json, headers={
-            "Authorization": f"bearer {token}"
+            "Authorization": f"bearer test"
         }).get_json()
 
     def delete(self, uri, *, json=None):
-        token = self.login().get_json()["data"]["token"]["accessToken"]
         return self.client.delete(uri, json=json, headers={
-            "Authorization": f"bearer {token}"
+            "Authorization": f"bearer test"
         }).get_json()
